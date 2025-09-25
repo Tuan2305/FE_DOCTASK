@@ -1,0 +1,43 @@
+<a nz-dropdown nzTrigger="click" [nzDropdownMenu]="menu">
+  <div class="notification-icon">
+    <i class="fa-solid fa-bell"></i>
+    <span class="badge">{{ totalNotificationIsNotRead }}</span>
+  </div>
+</a>
+<nz-dropdown-menu #menu="nzDropdownMenu">
+  <div class="notification-container">
+    <div class="activity-header">
+      <h2>Thông báo</h2>
+      <!-- <div>
+        <i
+          nz-tooltip
+          nzTooltipTitle="Đánh dấu tất cả là đã đọc"
+          nzTooltipColor="#f44336"
+          class="fa-solid fa-list-check icon-check-noti"
+        ></i>
+        <span class="icon">⚙️</span> 
+      </div> -->
+    </div>
+    <div class="activity-date">{{ dateTimeNow }}</div>
+    <div *ngIf="isEmptlist">
+      <app-page-empty></app-page-empty>
+    </div>
+
+    <div
+      *ngFor="let item of listNotification"
+      (click)="ChangeIsRead(item)"
+      class="notification-item"
+      [ngClass]="{ unread: !item.isNotified }"
+      nz-menu-item
+    >
+      <div class="icon m-r-10">📋</div>
+      <div class="text">
+        <div>
+          <p>{{ item.title }}</p>
+          <span class="time">{{ item.message }}</span>
+        </div>
+        <span class="time">{{ getTimeAgo(item.triggerTime) }}</span>
+      </div>
+    </div>
+  </div>
+</nz-dropdown-menu>

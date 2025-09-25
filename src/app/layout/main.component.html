@@ -1,0 +1,20 @@
+<div *ngIf="!isMobile" class="layout-container">
+  <app-header></app-header>
+  <div style="display: flex; height: 100%; width: 100%">
+    <app-sidebar></app-sidebar>
+
+    <div
+      style="height: 90%; width: 100%; overflow: auto; scrollbar-width: none"
+    >
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>
+<nz-result
+  nzStatus="warning"
+  nzTitle="Ứng dụng không hỗ trợ trên nền tảng di động"
+  nzSubTitle="Vui lòng sử dụng máy tính hoặc table để truy cập ứng dụng"
+>
+  <div nz-result-extra></div>
+</nz-result>
+<app-toast></app-toast>

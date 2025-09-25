@@ -1,0 +1,22 @@
+<nz-modal
+  [(nzVisible)]="isVisible"
+  nzTitle="Chi tiết nội dung công việc"
+  (nzOnCancel)="handleCancel()"
+  [nzContent]="modalContent"
+  [nzFooter]="modalFooter"
+>
+  <ng-template #modalContent>
+    <div>{{ desp }}</div>
+  </ng-template>
+  <ng-template #modalFooter>
+    <!-- <button nz-button nzType="default" (click)="handleCancel()">Hủy bỏ</button>
+    <button
+      nz-button
+      nzType="primary"
+      (click)="handleOk()"
+      [nzLoading]="isConfirmLoading"
+    >
+      Xác nhận
+    </button> -->
+  </ng-template>
+</nz-modal>

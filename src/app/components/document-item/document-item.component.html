@@ -1,0 +1,64 @@
+<div class="file-item" (click)="navigateTo()">
+  <div class="file-info">
+    <i class="fa-solid fa-file file-icon"></i>
+    <div class="file-details">
+      <div class="file-name">{{ doc.fileName }}</div>
+      <div class="file-meta">Added on {{ convertDate(doc.uploadedAt) }}</div>
+    </div>
+  </div>
+  <div class="file-actions">
+    <button (click)="toggleShowAssignWork()" class="btn-ask-ai">
+      <i class="fas fa-robot"></i> <span>Ask AI</span>
+    </button>
+    <a
+      nz-dropdown
+      nzTrigger="click"
+      [nzDropdownMenu]="menu"
+      (click)="$event.stopPropagation()"
+    >
+      <i class="fas fa-ellipsis-v more-options"></i>
+    </a>
+    <nz-dropdown-menu #menu="nzDropdownMenu">
+      <ul nz-menu class="submenuMoreOption">
+        <!-- <li>
+          <i class="fa-regular fa-file icon-option"></i>
+          <p class="title-list">Create project</p>
+        </li> -->
+        <li nz-menu-item class="item-complete">
+          <i class="fa-solid fa-circle-check icon-option"></i>
+          <p class="title-list">Đánh dấu đã xong</p>
+        </li>
+        <li nz-menu-item (click)="showConfirm(doc.fileId)" class="item-delete">
+          <i class="fa-solid fa-trash icon-option delete"></i>
+          <p class="title-list">Xóa</p>
+        </li>
+      </ul>
+    </nz-dropdown-menu>
+    <!-- <i
+      style="
+        position: relative;
+        width: 14px;
+        display: flex;
+        justify-content: center;
+      "
+      (click)="onToggleMoreOption($event)"
+      class="fas fa-ellipsis-v more-options"
+    >
+      <ul
+        class="submenuMoreOption"
+        (click)="$event.stopPropagation()"
+        *ngIf="openedMoreOptionId === doc.id.toString()"
+      >
+
+        <li>
+          <i class="fa-regular fa-pen-to-square icon-option"></i>
+          <p class="title-list">Edit</p>
+        </li>
+        <li (click)="showConfirm(doc.id)">
+          <i class="fa-solid fa-trash icon-option"></i>
+          <p class="title-list">Delete</p>
+        </li>
+      </ul>
+    </i> -->
+  </div>
+</div>

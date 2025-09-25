@@ -1,0 +1,189 @@
+<div class="modal">
+  <div class="modal-header">
+    <div class="button-back" (click)="goBack()">
+      <i class="fa-solid fa-arrow-left"></i>
+    </div>
+    <div class="title">Rà soát công việc</div>
+  </div>
+
+  <div class="modal-body">
+    <div class="header">
+      <div class="content-left">
+        <div class="sub-title m-b-5">Chọn đối tượng rà soát</div>
+        <div class="select-user">
+          <nz-select
+            [nzMaxTagCount]="3"
+            [nzMaxTagPlaceholder]="tagPlaceHolder"
+            nzMode="multiple"
+            nzPlaceHolder="Bấm để chọn"
+            [(ngModel)]="ListselectedUser"
+          >
+            <nz-option
+              *ngFor="let item of ListselectUser"
+              [nzLabel]="item.fullName"
+              [nzValue]="item"
+            ></nz-option>
+          </nz-select>
+          <ng-template #tagPlaceHolder let-selectedList
+            >and {{ selectedList.length }} more selected</ng-template
+          >
+        </div>
+      </div>
+      <div class="content-right flex">
+        <div class="select-schedule">
+          <div class="sub-title m-b-5">Chọn thời gian rà soát</div>
+          <div>
+            <nz-date-picker
+              [(ngModel)]="startDate"
+              nzPlaceHolder="Ngày bắt đầu"
+            ></nz-date-picker>
+            <nz-date-picker
+              class="m-l-10"
+              [(ngModel)]="endDate"
+              nzPlaceHolder="Ngày kết thúc"
+            ></nz-date-picker>
+          </div>
+        </div>
+        <div class="btn" (click)="review()">Rà soát</div>
+      </div>
+    </div>
+    <div class="space"></div>
+    <div class="space-10px"></div>
+    <div class="more-options">
+      <div></div>
+      <div class="flex">
+        <div class="btn" (click)="showInfo()">Tổng hợp báo cáo</div>
+      </div>
+    </div>
+    <div class="space-10px"></div>
+    <!-- table data -->
+    <nz-table
+      #basicTable
+      [nzData]="listOfData"
+      [nzShowPagination]="true"
+      [nzScroll]="{ y: '800px', x: 'max-content' }"
+      [nzLoading]="isloadingTable"
+      [nzPageSize]="pageSize"
+      [nzTotal]="totalItem"
+    >
+      <thead>
+        <tr>
+          <th
+            nzWidth=" 2%"
+            [(nzChecked)]="checked"
+            [nzIndeterminate]="indeterminate"
+            (nzCheckedChange)="onAllChecked($event)"
+          ></th>
+          <th nzWidth=" 10%">Đơn vị/Người thực hiện</th>
+          <th nzWidth=" 9%">Kỳ</th>
+          <th nzWidth=" 8%">Trạng thái</th>
+          <th nzWidth=" 15%">Kết quả</th>
+          <th nzWidth=" 15%">Đề xuất</th>
+          <th nzWidth=" 15%">Phản hồi</th>
+          <th nzWidth=" 11%">File đính kèm</th>
+          <th nzWidth=" 11%">Thao tác</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <ng-container *ngFor="let group of basicTable.data">
+          <!-- Dòng nhóm frequency -->
+          <tr class="group-row">
+            <td style="width: 40px"></td>
+            <td style="max-width: 70px">
+              <strong>{{ group.userName }}</strong>
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="max-width: 120px"></td>
+            <td style="max-width: 70px">
+              <button
+                nz-button
+                nzType="primary"
+                style="
+                  width: 100%;
+                  background: #ffc107 !important;
+                  border-color: #ffc107 !important;
+                "
+                (click)="showModalSendRemind(group.userId.toString())"
+              >
+                Nhắc nhở
+              </button>
+            </td>
+          </tr>
+
+          <!-- Dòng chi tiết từng item trong nhóm -->
+          <ng-container *ngFor="let item of group.progresses">
+            <tr>
+              <td
+                style="width: 40px"
+                [nzChecked]="setOfCheckedId.has(group.userId)"
+                (nzCheckedChange)="onItemChecked(group.userId, $event)"
+              ></td>
+              <td></td>
+              <!-- Cột Kỳ để trống cho dòng chi tiết -->
+              <td style="max-width: 70px">
+                Kỳ {{ item.periodIndex }} ({{ item.scheduledDate }})
+              </td>
+              <td>{{ convertStatus(item.status) }}</td>
+
+              <td style="max-width: 150px">{{ item.result }}</td>
+              <td style="max-width: 150px">{{ item.suggest }}</td>
+              <td style="max-width: 150px">{{ item.feedback }}</td>
+              <td style="max-width: 120px">
+                <div nz-popover nzType="primary" [nzPopoverContent]="ViewFile">
+                  {{ item.file }}
+                </div>
+                <ng-template #ViewFile>
+                  <div class="flex action-file">
+                    <i
+                      (click)="goReviewFileReport(item.filePath ?? '')"
+                      class="fa-regular fa-eye"
+                    >
+                    </i>
+                    <i
+                      (click)="getLinkFileReport(item.filePath ?? '')"
+                      class="fa-solid fa-download m-l-10"
+                    ></i>
+                  </div>
+                </ng-template>
+              </td>
+
+              <td style="max-width: 70px">
+                <div *ngIf="item.status == 'submitted'" class="consider">
+                  <button
+                    nz-button
+                    nzType="primary"
+                    style="
+                      background: #28a745 !important;
+                      border-color: #28a745 !important;
+                    "
+                    (click)="apporveProgress(item.progressId.toString(), true)"
+                  >
+                    Phê duyệt
+                  </button>
+                  <button
+                    nz-button
+                    nzType="primary"
+                    style="
+                      background: #dc3545 !important;
+                      border-color: #dc3545 !important;
+                    "
+                    (click)="apporveProgress(item.progressId.toString(), false)"
+                  >
+                    Từ chối
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
+        </ng-container>
+      </tbody>
+    </nz-table>
+  </div>
+</div>
+<app-modal-send-remind></app-modal-send-remind>
+<app-modal-review-progress></app-modal-review-progress>

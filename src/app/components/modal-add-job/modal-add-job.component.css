@@ -1,0 +1,9 @@
+::ng-deep .ant-modal {
+  width: 650px !important;
+}
+::ng-deep .ant-picker-footer {
+  display: none !important;
+}
+.title-despJob {
+  width: 155px;
+}

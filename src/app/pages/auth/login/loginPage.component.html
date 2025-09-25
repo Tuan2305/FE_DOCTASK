@@ -1,0 +1,57 @@
+<div class="auth-container">
+  <div class="auth-box">
+    <div class="auth-header">
+      <h2>Đăng nhập</h2>
+      <!-- <button class="toggle-mode">Chưa có tài khoản? Đăng ký</button> -->
+    </div>
+
+    <form [formGroup]="authForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <!-- Common fields for both forms -->
+      <div class="form-group">
+        <label for="username">Tên đăng nhập</label>
+        <input
+          type="text"
+          id="userName"
+          formControlName="userName"
+          placeholder="Nhập tên đăng nhập"
+        />
+        <div *ngIf="userName?.invalid && userName?.touched" class="text-error">
+          Tên đăng nhập là bắt buộc
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Mật khẩu</label>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          placeholder="Nhập mật khẩu"
+        />
+        <div *ngIf="password?.invalid && password?.touched" class="text-error">
+          <div *ngIf="password?.errors?.['required']">Mật khẩu là bắt buộc</div>
+          <div *ngIf="password?.errors?.['minlength']">
+            Mật khẩu phải ít nhất
+            {{ password?.errors?.['minlength'].requiredLength }} ký tự. (Hiện
+            tại bạn nhập {{ password?.errors?.['minlength'].actualLength }} ký
+            tự)
+          </div>
+        </div>
+      </div>
+      <button
+        type="submit"
+        (onclick)="onSubmit()"
+        [disabled]="!authForm.valid || isLoading"
+        class="auth-button"
+      >
+        Đăng nhập
+      </button>
+    </form>
+
+    <div class="forgot-password">
+      <a routerLink="/forgot-password">Quên mật khẩu?</a>
+    </div>
+  </div>
+</div>
+<app-toast></app-toast>
+<screen-loading *ngIf="isLoading"></screen-loading>

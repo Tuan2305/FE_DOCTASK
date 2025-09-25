@@ -1,0 +1,20 @@
+<div class="task-detail-container">
+  <div class="header">
+    <div class="title">
+      <i (click)="goBack()" class="fa-solid fa-arrow-left"></i>
+      <div class="title-text">Chi tiết nội dung công việc</div>
+    </div>
+    <button (click)="togglePopup()" class="btn primary">
+      Cập nhật tiến độ
+    </button>
+  </div>
+
+  <div class="content">
+    <span>{{ despcription }}</span>
+  </div>
+</div>
+<app-modal-update-progress
+  [taskId]="taskId"
+  *ngIf="isOpenPopup"
+  (closePopup)="onchildChangedShowPopup($event)"
+></app-modal-update-progress>
