@@ -18,25 +18,19 @@
           <ng-template #dueDate>Lỗi thời hạn</ng-template>
         </button>
         <div class="progress-bar">
-          <nz-progress
+          <!-- <nz-progress
             [nzPercent]="viecdagiao.percentageComplete.toFixed(2)"
             nzStatus="active"
-          ></nz-progress>
+          ></nz-progress> -->
         </div>
         <div (click)="$event.stopPropagation(); $event.preventDefault()">
           <a nz-dropdown nzTrigger="click" [nzDropdownMenu]="menu">
             <div class="center-flex">
-              <ng-container
-                *ngIf="
-                  frequency?.frequency_type != null ||
-                    frequency?.frequency_type != '';
-                  else defaultTag
-                "
-              >
-                <div class="desp-button">
-                  📆 Lịch báo cáo theo {{ frequency!.frequency_type }}
-                </div>
-              </ng-container>
+              <ng-container *ngIf="frequency && frequency.frequency_type; else defaultTag">
+  <div class="desp-button">
+    📆 Lịch báo cáo theo {{ frequency.frequency_type }}
+  </div>
+</ng-container>
               <ng-template #defaultTag>
                 <div class="sub-title">Lỗi hiển thị lịch báo cáo</div>
               </ng-template>

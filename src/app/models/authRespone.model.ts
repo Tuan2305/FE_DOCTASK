@@ -1,5 +1,5 @@
 export interface AuthResponseModel {
-  token: string;
+  accessToken: string;
   refreshToken: string;
   userId: number;
   username: string;

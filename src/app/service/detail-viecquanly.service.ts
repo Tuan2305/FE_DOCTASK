@@ -36,7 +36,7 @@ export class DetailViecquanlyService {
     taskId: string,
     pageNumber: string
   ): Observable<ResponsePaganation<DetailViecquanlyModel>> {
-    const url = `${this.apiUrl}GetListTask/by-parent?parentTaskId=${taskId}&page=${pageNumber}&pageSize=10`;
+    const url = `${this.apiUrl}subtask/by-parent-task/${taskId}?page=${pageNumber}&pageSize=10`;
     return this.http
       .get<ResponseApi<ResponsePaganation<DetailViecquanlyModel>>>(url)
       .pipe(

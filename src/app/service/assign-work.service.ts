@@ -39,7 +39,7 @@ export class AssignWorkService {
     );
   }
   CreateParentTask(taskDesp: {}): Observable<TaskParentModel> {
-    const url = `${this.apiUrl}taskAssignment/create-parentTask`;
+    const url = `${this.apiUrl}task`;
     return this.http.post<ResponseApi<TaskParentModel>>(url, taskDesp).pipe(
       map((res) => {
         if (!res.success) {

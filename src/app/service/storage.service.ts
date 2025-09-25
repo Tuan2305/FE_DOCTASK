@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as CryptoJS from 'crypto-js';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -21,9 +22,16 @@ export class StorageService {
     try {
       const bytes = CryptoJS.AES.decrypt(encryptedData, this.secretKey);
       const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+
+      // Nếu decrypted rỗng hoặc null thì coi như không hợp lệ
+      if (!decrypted) {
+        console.warn('Không có dữ liệu giải mã được cho', key);
+        return null;
+      }
+
       return JSON.parse(decrypted) as T;
     } catch (err) {
-      console.error('Decryption error:', err);
+      console.error('Decryption/parse error:', err);
       return null;
     }
   }

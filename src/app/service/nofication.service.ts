@@ -26,7 +26,7 @@ export class NotificationService {
   }
 
   getAll(): Observable<ReminderModel[]> {
-    const url = `${this.apiUrl}Reminder`;
+    const url = `${this.apiUrl}reminder/user-reminders`;
     return this.http.get<ResponseApi<ReminderModel[]>>(url).pipe(
       map((res) => {
         if (!res.success) {

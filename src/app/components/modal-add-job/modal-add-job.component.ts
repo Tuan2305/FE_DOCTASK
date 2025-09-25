@@ -102,32 +102,31 @@ export class ModalAddJobComponent implements OnInit {
       return;
     }
     setTimeout(() => {
-      const objectTaskChild = {
+  const objectTaskParent = {
+    title: this.jobName,
+    description: this.description,
+    startDate: new Date(this.task.startDate as string).toISOString(),
+    dueDate: new Date(this.task.endDate as string).toISOString(),
+  };
+  this.assignWorkService.CreateParentTask(objectTaskParent).subscribe({
+    next: (data) => {
+      const newTask: TaskViewModel = {
+        ...this.task,
+        id: data.taskId,
         title: this.jobName,
-        description: this.task.description,
-        priority: '',
-        startDate: convertDateArrayToISOStrings(this.task.startDate ?? ''),
-        dueDate: convertDateArrayToISOStrings(this.task.startDate ?? ''),
+        description: this.description,
       };
-      this.assignWorkService.CreateParentTask(objectTaskChild).subscribe({
-        next: (data) => {
-          const newTask: TaskViewModel = {
-            ...this.task,
-            id: data.taskId,
-            title: this.jobName,
-            description: this.task.description,
-          };
-          this.jobAdded.emit(newTask);
-          this.toastService.Success('Giao việc thành công!');
-        },
-        error: (err) => {
-          this.toastService.Warning(err.message ?? 'Giao việc thất bại !');
-        },
-      });
+      this.jobAdded.emit(newTask);
+      this.toastService.Success('Giao việc thành công!');
+    },
+    error: (err) => {
+      this.toastService.Warning(err.message ?? 'Giao việc thất bại !');
+    },
+  });
 
-      this.isConfirmLoading = false;
-      this.isVisible = false;
-    }, 500);
+  this.isConfirmLoading = false;
+  this.isVisible = false;
+}, 500);
   }
 
   handleCancel(): void {

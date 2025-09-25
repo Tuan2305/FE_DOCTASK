@@ -20,15 +20,14 @@ export class DocumentService {
   }
 
   getAllDoc(): Observable<DocumentModel[]> {
-    const url = `${this.apiUrl}UploadFile`;
-    return this.http.get<ResponseApi<DocumentModel[]>>(url).pipe(
-      map((res) => {
-        if (!res.success) throw Error(res.message);
-
-        return res.data;
-      })
-    );
-  }
+  const url = `${this.apiUrl}file/user`;
+  return this.http.get<ResponseApi<ResponsePaganation<DocumentModel>>>(url).pipe(
+    map((res) => {
+      if (!res.success) throw Error(res.message);
+      return res.data.items;
+    })
+  );
+}
   uploadDoc(formData: FormData): Observable<DocumentModel> {
     const url = `${this.apiUrl}UploadFile`;
 

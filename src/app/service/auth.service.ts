@@ -19,7 +19,7 @@ export class AuthService {
     this.apiUrl = `${environment.SERVICE_API}`;
   }
   login(userName: string, password: string): Observable<boolean> {
-    const url = `${this.apiUrl}login`;
+    const url = `${this.apiUrl}auth/login`;
     return this.http
       .post<ResponseApi>(url, { username: userName, password: password })
       .pipe(
@@ -30,13 +30,13 @@ export class AuthService {
           } else {
             const item = res.data as AuthResponseModel;
 
-            this.storageService.setEncrypted('accessToken', item.token);
+            this.storageService.setEncrypted('accessToken', item.accessToken);
             this.storageService.setEncrypted('refreshToken', item.refreshToken);
-            this.storageService.setEncrypted('userId', item.userId.toString());
-            this.storageService.setEncrypted('userName', item.username);
-            this.storageService.setEncrypted('email', item.email);
-            this.storageService.setEncrypted('imageUrl', '');
-            localStorage.setItem('login', 'true');
+            // this.storageService.setEncrypted('userId', item.userId.toString());
+            // this.storageService.setEncrypted('userName', item.username);
+            // this.storageService.setEncrypted('email', item.email);
+            // this.storageService.setEncrypted('imageUrl', '');
+            localStorage.setItem('auth/login', 'true');
 
             return true;
           }
@@ -62,7 +62,7 @@ export class AuthService {
 
   logout(): void {
     this.clearTokens();
-    localStorage.setItem('login', 'false');
-    this.router.navigate(['/login']);
+    localStorage.setItem('auth/login', 'false');
+    this.router.navigate(['auth/login']);
   }
 }

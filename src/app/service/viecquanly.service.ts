@@ -32,7 +32,7 @@ export class ViecQuanlyService {
   getAllData(
     currentPage: string
   ): Observable<ResponsePaganation<ViecquanlyModel>> {
-    const url = `${this.apiUrl}GetListTask/by-assignedby?page=${currentPage}&pageSize=10`;
+    const url = `${this.apiUrl}task?page=${currentPage}&pageSize=10`;
 
     return this.http
       .get<ResponseApi<ResponsePaganation<ViecquanlyModel>>>(url)
