@@ -1,5 +1,5 @@
 import { DocumentService } from '../../service/document.service';
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject,  ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FileItemComponent } from '../../components/document-item/document-item.component';
@@ -8,6 +8,9 @@ import { PageEmptyComponent } from '../../components/page-empty/page-empty.compo
 import { DocumentModel } from '../../models/document.model';
 import { ToastService } from '../../service/toast.service';
 import { NzButtonModule } from 'ng-zorro-antd/button';
+import { ModalViewFileComponent } from '../../components/modal-view-file/modal-view-file.component';
+
+
 @Component({
   selector: 'app-document-page',
   standalone: true,
@@ -17,7 +20,8 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
     LoadingComponent,
     PageEmptyComponent,
     NzButtonModule,
-  ],
+    ModalViewFileComponent
+],
   templateUrl: './document-page.component.html',
   styleUrl: './document-page.component.css',
 })
@@ -26,6 +30,9 @@ export class DocumentPageComponent implements OnInit {
   isLoading = true;
   isLoadingButton = false;
   private destroyRef = inject(DestroyRef);
+
+  @ViewChild(ModalViewFileComponent)
+  modalViewFileRef!: ModalViewFileComponent;
 
   constructor(
     private toastService: ToastService,
@@ -75,5 +82,12 @@ export class DocumentPageComponent implements OnInit {
 
       // console.log('Selected file:', file);
     }
+  }
+
+  previewFile(doc: DocumentModel) {
+    if (!doc.filePath) return;
+    this.modalViewFileRef.fileUrl = doc.filePath;
+    this.modalViewFileRef.fileName = doc.fileName;
+    this.modalViewFileRef.showModal();
   }
 }

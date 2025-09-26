@@ -1,24 +1,24 @@
 import { Component, Input } from '@angular/core';
-
 import { CommonModule } from '@angular/common';
-
 import { DocumentService } from '../../service/document.service';
 import { DocumentModel } from '../../models/document.model';
 import { ToastService } from '../../service/toast.service';
 import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
-
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Output, EventEmitter } from '@angular/core';
+
 @Component({
   selector: 'app-file-item',
+  standalone: true,
   imports: [CommonModule, NzModalModule, NzDropDownModule, NzIconModule],
   templateUrl: './document-item.component.html',
-  styleUrl: './document-item.component.css',
+  styleUrls: ['./document-item.component.css'],
 })
 export class FileItemComponent {
   @Input() doc!: DocumentModel;
-
+    @Output() preview = new EventEmitter<DocumentModel>();
   isShowModalAssignWork = false;
 
   constructor(
@@ -28,25 +28,28 @@ export class FileItemComponent {
     private router: Router,
     private route: ActivatedRoute
   ) {}
-  ngOnInit() {}
 
-  //---- function ----
+  // xoá file
   deleteFile(id: number) {
     this.documentService.deleteDoc(id.toString()).subscribe({
       next: () => {
         this.toastService.Success('Xóa tài liệu thành công !');
         this.documentService.triggerRefresh();
       },
-      error: (err) => this.toastService.Error('Xóa tài liệu thất bại !'),
+      error: () => this.toastService.Error('Xóa tài liệu thất bại !'),
     });
   }
 
-  //----- convert ----
+  // tải file
+  downloadFile(fileId: number, fileName: string) {
+    this.documentService.downloadFile(fileId); // hàm trong service
+    this.toastService.Success(`Đang tải tài liệu: ${fileName}`);
+  }
+
+  // convert ngày
   convertDate(uploadedAt: string): string {
     const date = new Date(uploadedAt);
-    return `${date.getDate().toString().padStart(2, '0')}/${(
-      date.getMonth() + 1
-    )
+    return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1)
       .toString()
       .padStart(2, '0')}/${date.getFullYear()}`;
   }
@@ -58,18 +61,11 @@ export class FileItemComponent {
   showConfirm(id: number): void {
     this.modal.confirm({
       nzTitle: '<i>Bạn chắc chắn hoàn thành giao việc?</i>',
-      // nzContent: '<b>Some descriptions</b>',
       nzOnOk: () => this.deleteFile(id),
     });
   }
 
   navigateTo() {
-    // console.log(this.doc.fileName);
-    // this.router.navigate(['assignJob'], {
-    //   relativeTo: this.route,
-    //   state: {
-    //     title: this.doc.fileName,
-    //   },
-    // });
+     this.preview.emit(this.doc);
   }
 }

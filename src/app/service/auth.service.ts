@@ -65,4 +65,19 @@ export class AuthService {
     localStorage.setItem('auth/login', 'false');
     this.router.navigate(['auth/login']);
   }
+
+  getProfile(): Observable<{ email: string; username: string }> {
+  const url = `${this.apiUrl}user/profile`;
+  return this.http.get<ResponseApi<any>>(url).pipe(
+    map((res) => {
+      if (!res.success) throw new Error(res.message);
+      return {
+        email: res.data.email,
+        username: res.data.username,
+      };
+    })
+  );
 }
+
+}
+

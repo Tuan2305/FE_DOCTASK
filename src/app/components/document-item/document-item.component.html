@@ -20,45 +20,29 @@
     </a>
     <nz-dropdown-menu #menu="nzDropdownMenu">
       <ul nz-menu class="submenuMoreOption">
-        <!-- <li>
-          <i class="fa-regular fa-file icon-option"></i>
-          <p class="title-list">Create project</p>
-        </li> -->
         <li nz-menu-item class="item-complete">
           <i class="fa-solid fa-circle-check icon-option"></i>
           <p class="title-list">Đánh dấu đã xong</p>
         </li>
-        <li nz-menu-item (click)="showConfirm(doc.fileId)" class="item-delete">
+
+        <li
+          nz-menu-item
+          class="item-complete"
+          (click)="downloadFile(doc.fileId, doc.fileName); $event.stopPropagation()"
+        >
+          <i class="fa-solid fa-download icon-option"></i>
+          <p class="title-list">Tải file</p>
+        </li>
+
+        <li
+          nz-menu-item
+          (click)="showConfirm(doc.fileId); $event.stopPropagation()"
+          class="item-delete"
+        >
           <i class="fa-solid fa-trash icon-option delete"></i>
           <p class="title-list">Xóa</p>
         </li>
       </ul>
     </nz-dropdown-menu>
-    <!-- <i
-      style="
-        position: relative;
-        width: 14px;
-        display: flex;
-        justify-content: center;
-      "
-      (click)="onToggleMoreOption($event)"
-      class="fas fa-ellipsis-v more-options"
-    >
-      <ul
-        class="submenuMoreOption"
-        (click)="$event.stopPropagation()"
-        *ngIf="openedMoreOptionId === doc.id.toString()"
-      >
-
-        <li>
-          <i class="fa-regular fa-pen-to-square icon-option"></i>
-          <p class="title-list">Edit</p>
-        </li>
-        <li (click)="showConfirm(doc.id)">
-          <i class="fa-solid fa-trash icon-option"></i>
-          <p class="title-list">Delete</p>
-        </li>
-      </ul>
-    </i> -->
   </div>
 </div>

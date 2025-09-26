@@ -25,7 +25,7 @@ export class ModalViewFileComponent {
   doc =
     'http://103.252.72.72:9001/api/v1/buckets/doc/objects/metadata?prefix=Role-userRole.docx&versionID=null';
 
-  @Input() fileUrl: string = '';
+    @Input() fileUrl: string = '';
   @Input() fileName: string = '';
 
   isVisible = false;
@@ -35,8 +35,9 @@ export class ModalViewFileComponent {
 
   ngOnInit(): void {
     if (this.fileUrl) {
+      const normalized = this.normalizeUrl(this.fileUrl);
       this.safeFileUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-        this.fileUrl
+        normalized
       );
     }
   }
@@ -48,34 +49,62 @@ export class ModalViewFileComponent {
   showModal(): void {
     if (!this.fileUrl) return;
 
-    if (this.isPdf(this.fileUrl)) {
+    const normalized = this.normalizeUrl(this.fileUrl);
+
+    if (this.isPdf(normalized) || this.isImage(normalized)) {
       this.safeFileUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-        this.fileUrl
+        normalized
       );
-    } else if (this.isDocxFile(this.fileUrl)) {
-      this.safeFileUrl = this.getGoogleDocViewerUrl(this.fileUrl);
+    } else if (this.isDocxFile(normalized)) {
+      this.safeFileUrl = this.getGoogleDocViewerUrl(normalized);
     } else {
       this.safeFileUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-        this.fileUrl
+        normalized
       );
     }
-    console.log(this.isDocxFile(this.fileUrl));
     this.isVisible = true;
     document.body.style.overflow = 'hidden';
   }
 
   handleOk(): void {
-    console.log('Button ok clicked!');
     this.isVisible = false;
+    document.body.style.overflow = '';
   }
 
   handleCancel(): void {
-    console.log('Button cancel clicked!');
     this.isVisible = false;
+    document.body.style.overflow = '';
+  }
+
+  // --- helpers ---
+
+  private normalizeUrl(url: string): string {
+    if (!url) return url;
+
+    // Fix double 'doctask/doctask/'
+    url = url.replace('/doctask/doctask/', '/doctask/');
+
+    // Nếu là dạng Minio bọc Cloudinary: '.../doctask/https%3a%2f%2f...'
+    const marker = '/doctask/';
+    const idx = url.indexOf(marker);
+    if (idx > -1) {
+      const tail = url.substring(idx + marker.length);
+      // Nếu phần tail là 1 URL đã được encode bắt đầu bằng http(s)%3a
+      if (/^(https?|HTTPS?)%3a/i.test(tail)) {
+        try {
+          const decoded = decodeURIComponent(tail);
+          if (/^https?:\/\//i.test(decoded)) {
+            return decoded; // dùng thẳng URL Cloudinary
+          }
+        } catch {}
+      }
+    }
+
+    return url;
   }
 
   isImage(fileUrl: string): boolean {
-    return /\.(png|jpe?g|gif)$/i.test(fileUrl);
+    return /\.(png|jpe?g|gif|webp)$/i.test(fileUrl);
   }
 
   isPdf(file: string): boolean {

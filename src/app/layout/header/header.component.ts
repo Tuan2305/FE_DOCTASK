@@ -44,11 +44,18 @@ export class HeaderComponent {
       });
   }
 
-  ngOnInit() {
-    this.email = this.storageService.getDecrypted<string>('email')!;
-    this.username = this.storageService.getDecrypted<string>('userName')!;
+    ngOnInit() {
+    this.authService.getProfile().subscribe({
+      next: (profile) => {
+        this.email = profile.email;
+        this.username = profile.username;
+      },
+      error: () => {
+        this.email = '';
+        this.username = '';
+      },
+    });
   }
-
   // ------ show toast ---------
 
   showInfo() {
