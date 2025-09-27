@@ -16,7 +16,7 @@ export class ViecduocgiaoService {
   getAllData(
     currentPage: string
   ): Observable<ResponsePaganation<ViecduocgiaoModel>> {
-    const url = `${this.apiUrl}subtask/assigned?page=${currentPage}&pageSize=10`;
+    const url = `${this.apiUrl}subtask/assigned?page=${currentPage}&size=10`;
 
     return this.http
       .get<ResponseApi<ResponsePaganation<ViecduocgiaoModel>>>(url)

@@ -1,15 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { map, Observable, BehaviorSubject, switchMap } from 'rxjs';
 import { ViecquanlyModel } from '../models/viecquanly.model';
 import { environment } from '../environment/environment';
 import { ResponseApi } from '../interface/response';
 import { ResponsePaganation } from '../interface/response-paganation';
-import { BehaviorSubject, switchMap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class ViecQuanlyService {
-  private refreshTrigger$ = new BehaviorSubject<void>(undefined); // hoặc new Subject<void>()
+  private refreshTrigger$ = new BehaviorSubject<void>(undefined);
 
   apiUrl: string;
 
@@ -21,35 +20,37 @@ export class ViecQuanlyService {
     this.refreshTrigger$.next();
   }
 
-  onRefresh(
-    currentPage: string
-  ): Observable<ResponsePaganation<ViecquanlyModel>> {
+  onRefresh(currentPage: string): Observable<ResponsePaganation<ViecquanlyModel>> {
     return this.refreshTrigger$.pipe(
       switchMap(() => this.getAllData(currentPage))
     );
   }
 
-  getAllData(
-    currentPage: string
-  ): Observable<ResponsePaganation<ViecquanlyModel>> {
-    const url = `${this.apiUrl}task?page=${currentPage}&pageSize=10`;
-
-    return this.http
-      .get<ResponseApi<ResponsePaganation<ViecquanlyModel>>>(url)
-      .pipe(
-        map((res) => {
-          if (!res.success) {
-            throw Error(res.message);
-          } else {
-            return res.data;
-          }
-        })
-      );
+  getAllData(currentPage: string): Observable<ResponsePaganation<ViecquanlyModel>> {
+    const url = `${this.apiUrl}task?page=${currentPage}`;
+    return this.http.get<ResponseApi<any>>(url).pipe(
+      map((res) => {
+        if (!res.success) {
+          throw Error(res.message);
+        } else {
+          const d = res.data;
+          const md = d?.metaData ?? {};
+          const mapped: ResponsePaganation<ViecquanlyModel> = {
+            items: d?.items ?? [],
+            currentPage: md.pageIndex ?? 1,
+            totalPages: md.totalPages ?? 1,
+            pageSize: md.currentItems ?? 10,
+            totalItems: md.totalItems ?? 0
+          };
+          return mapped;
+        }
+      })
+    );
   }
 
-  editViecQuanly(taskId: string, object: {}): Observable<void> {
-    const url = `${this.apiUrl}taskAssignment/update-parenttask?taskId=${taskId}`;
-    return this.http.put<ResponseApi<any>>(url, object).pipe(
+    editViecQuanly(taskId: string, obj: any): Observable<any> {
+    const url = `${this.apiUrl}task/${taskId}`;
+    return this.http.put<ResponseApi<any>>(url, obj).pipe(
       map((res) => {
         if (!res.success) {
           throw Error(res.message);

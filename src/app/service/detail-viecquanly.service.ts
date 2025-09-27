@@ -32,32 +32,57 @@ export class DetailViecquanlyService {
     );
   }
 
-  getAllData(
+  editDetailViecQuanly(taskId: string, obj: any): Observable<any> {
+  const url = `${this.apiUrl}subtask/update?taskId=${taskId}`;
+  return this.http.put<ResponseApi<any>>(url, obj).pipe(
+    map((res) => {
+      if (!res.success) {
+        throw Error(res.message);
+      } else {
+        return res.data;
+      }
+    })
+  );
+}
+
+    getAllData(
     taskId: string,
     pageNumber: string
   ): Observable<ResponsePaganation<DetailViecquanlyModel>> {
     const url = `${this.apiUrl}subtask/by-parent-task/${taskId}?page=${pageNumber}&pageSize=10`;
     return this.http
-      .get<ResponseApi<ResponsePaganation<DetailViecquanlyModel>>>(url)
+      .get<ResponseApi<any>>(url)
       .pipe(
         map((res) => {
           if (!res.success) throw Error(res.message);
 
-          return res.data;
+          const d = res.data;
+          const md = d?.metaData ?? {};
+
+          const items: DetailViecquanlyModel[] = (d?.items ?? []).map((it: any) => ({
+            TaskId: it.taskId,
+            Title: it.title,
+            Description: it.description,
+            StartDate: it.startDate,
+            DueDate: it.dueDate,
+            PercentageComplete: it.percentagecomplete,
+            AssigneeFullNames: (it.assignedUsers ?? []).map((u: any) => u.fullName),
+            FrequencyType: it.frequencyType,
+            IntervalValue: it.intervalValue,
+            dayOfWeek: it.frequencyDays ?? [],
+            dayOfMonth: null
+          }));
+
+          const mapped: ResponsePaganation<DetailViecquanlyModel> = {
+            items,
+            currentPage: md.pageIndex ?? 1,
+            totalPages: md.totalPages ?? 1,
+            pageSize: md.currentItems ?? 10,
+            totalItems: md.totalItems ?? 0
+          };
+
+          return mapped;
         })
       );
-  }
-  editDetailViecQuanly(taskId: string, object: {}): Observable<void> {
-    const url = `${this.apiUrl}taskAssignment/Update-ChildTask?idtask=${taskId}`;
-
-    return this.http.put<ResponseApi<any>>(url, object).pipe(
-      map((res) => {
-        if (!res.success) {
-          throw Error(res.message);
-        } else {
-          return res.data;
-        }
-      })
-    );
   }
 }

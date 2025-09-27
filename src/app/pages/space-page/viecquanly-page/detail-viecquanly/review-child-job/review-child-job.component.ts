@@ -262,7 +262,7 @@ export class ReviewChildJobComponent implements OnInit {
         const linkPreview =
           'https://docs.google.com/gview?url=' + link + '&embedded=true';
         window.open(linkPreview, '_blank');
-      },
+      }, 
       error: () => {
         this.toastService.Warning('Không lấy được liên kết tải về');
       },

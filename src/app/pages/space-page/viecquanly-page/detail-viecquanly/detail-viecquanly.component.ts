@@ -40,6 +40,8 @@ export class DetailViecquanlyComponent {
 
   listData: DetailViecquanlyModel[] = [];
   filterListDetailViecQuanLy: DetailViecquanlyModel[] = [];
+  currentPage: number = 1;
+  pageSize: number = 10;
   constructor(
     private route: ActivatedRoute,
     private location: Location,
@@ -49,12 +51,13 @@ export class DetailViecquanlyComponent {
   ngOnInit() {
     this.route.params
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((params) => {
+      .subscribe((params) => {     
         this.taskId = +params['id']; // Gán taskId
         // Khởi tạo data$ sau khi có taskId
         this.data$ = this.detailViecquanlyService.onRefresh(
           this.taskId.toString(),
-          '1'
+          this.currentPage.toString()
+          
         );
         this.getData(); // Gọi getData sau khi data$ được gán
       });

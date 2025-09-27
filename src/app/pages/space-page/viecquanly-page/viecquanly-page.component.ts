@@ -32,6 +32,7 @@ export class ViecquanlyPageComponent implements OnInit {
   listViecquanly: ViecquanlyModel[] = [];
   totalItems: number | null = null;
   pageSize: number | null = null;
+  currentPage: number = 1;
   textSearch = '';
   filterListViecQuanLy: ViecquanlyModel[] = [];
   private destroyRef = inject(DestroyRef);
@@ -41,7 +42,7 @@ export class ViecquanlyPageComponent implements OnInit {
     private viecQuanlyService: ViecQuanlyService
   ) {}
   ngOnInit(): void {
-    this.data$ = this.viecQuanlyService.onRefresh('1');
+    this.data$ = this.viecQuanlyService.onRefresh(this.currentPage.toString());
     this.getData();
   }
   onSearchChange(textSearch: string) {
@@ -57,9 +58,11 @@ export class ViecquanlyPageComponent implements OnInit {
     );
   }
   onPageChange(currentPage: number) {
-    this.data$ = this.viecQuanlyService.onRefresh(currentPage.toString());
-    this.getData();
+    this.currentPage = currentPage; 
+    this.data$ = this.viecQuanlyService.onRefresh(this.currentPage.toString());
+      this.getData();
   }
+
   getData() {
     this.data$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
@@ -68,6 +71,10 @@ export class ViecquanlyPageComponent implements OnInit {
           this.listViecquanly = res.items;
           this.filterListViecQuanLy = res.items;
           this.totalItems = res.totalItems;
+         this.pageSize =res.pageSize;
+         this.currentPage = res.currentPage;
+
+
         }, 500);
       },
       error: (err) => {

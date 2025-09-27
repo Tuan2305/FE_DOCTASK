@@ -35,8 +35,8 @@
       *ngIf="!isLoading && listData.length == 0"
     ></app-page-empty>
     <nz-pagination
-      [nzPageIndex]="1"
-      nzPageSize="10"
+      [nzPageIndex]="currentPage"
+      nzPageSize="pageSize"
       (nzPageIndexChange)="onPageChange($event)"
       [nzTotal]="totalItems"
     ></nz-pagination>

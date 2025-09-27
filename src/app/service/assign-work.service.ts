@@ -28,7 +28,7 @@ export class AssignWorkService {
   }
 
   GetUsersAssign(): Observable<UserRelationModel> {
-    const url = `${this.apiUrl}taskAssignment/get-subs-user-current`;
+    const url = `${this.apiUrl}subtask/assignable-users`;
     return this.http.get<ResponseApi<UserRelationModel>>(url).pipe(
       map((res) => {
         if (!res.success) {
