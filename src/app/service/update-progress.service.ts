@@ -9,7 +9,7 @@ import { ResponseApi } from '../interface/response';
 })
 export class UpdateProgressService {
   apiUrl: string;
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient  ) {
     this.apiUrl = `${environment.SERVICE_API}`;
   }
   updateProgress(taskid: string, formData: FormData): Observable<void> {

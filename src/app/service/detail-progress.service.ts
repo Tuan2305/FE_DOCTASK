@@ -18,7 +18,7 @@ export class DetailProgressService {
   constructor(private http: HttpClient) {
     this.apiUrl = `${environment.SERVICE_API}`;
   }
-
+// chi tiết tiến độ việc con
   detailProgressTaskChild(
     taskId: string
   ): Observable<DetailProgressTaskChildModel> {
@@ -31,6 +31,9 @@ export class DetailProgressService {
       })
     );
   }
+
+
+  // chi tiết tiến độ việc cha
   detailProgressTaskParent(
     taskId: string,
     currentPage: string

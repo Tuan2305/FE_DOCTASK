@@ -124,7 +124,16 @@ export class DetailViecquanlyItemComponent implements OnInit {
     this.ModalDetailDespcriptionJobRef.showModal();
   }
   showInfo() {
-    this.toastService.ForFeature();
+    this.toastService.Warning('Bạn có chắc muốn xóa công việc này ?');
+    this.detailViecquanlyService.deleteSubtask(this.detailViecquanlyModel.TaskId.toString()).subscribe({
+      next: () => {
+        this.toastService.Success('Xóa công việc thành công !');
+        this.detailViecquanlyService.triggerRefresh();
+      },
+      error: () => {
+        this.toastService.Warning('Xóa công việc thất bại !');
+      }
+    });
   }
   //----
   onChangeDateModalEdit(result: Date): void {

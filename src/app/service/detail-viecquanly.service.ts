@@ -33,17 +33,30 @@ export class DetailViecquanlyService {
   }
 
   editDetailViecQuanly(taskId: string, obj: any): Observable<any> {
-  const url = `${this.apiUrl}subtask/update?taskId=${taskId}`;
-  return this.http.put<ResponseApi<any>>(url, obj).pipe(
-    map((res) => {
-      if (!res.success) {
-        throw Error(res.message);
-      } else {
-        return res.data;
-      }
-    })
-  );
-}
+    const url = `${this.apiUrl}subtask?subTaskId=${taskId}`;
+    return this.http.put<ResponseApi<any>>(url, obj).pipe(
+      map((res) => {
+        if (!res.success) {
+          throw Error(res.message);
+        } else {
+          return res.data;
+        }
+      })
+    );
+  }
+  
+  deleteSubtask(subTaskId: string): Observable<boolean> {
+    const url = `${this.apiUrl}subtask?subTaskId=${subTaskId}`;
+    return this.http.delete<ResponseApi<boolean>>(url).pipe(
+      map((res) => {
+        if (!res.success) {
+          throw Error(res.message);
+        } else {
+          return res.data;
+        }
+      })
+    );
+  }
 
     getAllData(
     taskId: string,

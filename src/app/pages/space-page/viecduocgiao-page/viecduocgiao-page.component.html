@@ -36,9 +36,10 @@
       *ngIf="!isLoading && listViecdagiao.length == 0"
     ></app-page-empty>
     <nz-pagination
-      [nzPageIndex]="1"
+      [nzPageIndex]="currentPage"
+      [nzPageSize]="pageSize || 10"
       (nzPageIndexChange)="onPageChange($event)"
-      [nzTotal]="totalPage"
+      [nzTotal]="totalItems"
     ></nz-pagination>
   </div>
 </div>

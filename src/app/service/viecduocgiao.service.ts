@@ -19,13 +19,22 @@ export class ViecduocgiaoService {
     const url = `${this.apiUrl}subtask/assigned?page=${currentPage}&size=10`;
 
     return this.http
-      .get<ResponseApi<ResponsePaganation<ViecduocgiaoModel>>>(url)
+      .get<ResponseApi<any>>(url)
       .pipe(
         map((res) => {
           if (!res.success) {
             throw Error(res.message);
           } else {
-            return res.data;
+            const d = res.data;
+            const md = d?.metaData ?? {};
+            const mapped: ResponsePaganation<ViecduocgiaoModel> = {
+              items: d?.items ?? [],
+              currentPage: md.pageIndex ?? 1,
+              totalPages: md.totalPages ?? 1,
+              pageSize: md.currentItems ?? 10,
+              totalItems: md.totalItems ?? 0
+            };
+            return mapped;
           }
         })
       );

@@ -32,7 +32,9 @@ export class ViecduocgiaoPageComponent implements OnInit {
   taskId: number | null = null;
   isLoading = true;
   listViecdagiao: ViecduocgiaoModel[] = [];
-  totalPage = 1;
+  currentPage = 1;
+  pageSize = 10;
+  totalItems = 0;
   textSearch = '';
   filterListViecDuocGiao: ViecduocgiaoModel[] = [];
   highlightedId: string | null = null;
@@ -96,6 +98,7 @@ export class ViecduocgiaoPageComponent implements OnInit {
   }
 
   onPageChange(currentPage: number) {
+    this.currentPage = currentPage;
     this.getData(currentPage.toString());
   }
   getData(currentPage: string) {
@@ -108,7 +111,9 @@ export class ViecduocgiaoPageComponent implements OnInit {
             this.isLoading = false;
             this.listViecdagiao = res.items;
             this.filterListViecDuocGiao = res.items;
-            this.totalPage = res.totalPages;
+            this.currentPage = res.currentPage;
+            this.pageSize = res.pageSize;
+            this.totalItems = res.totalItems;
           }, 500);
         },
         error: (err) => {
