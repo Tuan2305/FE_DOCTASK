@@ -8,9 +8,11 @@ import { DetailProgressService } from '../../service/detail-progress.service';
 import { convertToVietnameseDate } from '../../helper/convertToVNDate';
 import { ConvertStatusTask } from '../../constants/util';
 import { NzTableModule } from 'ng-zorro-antd/table';
+import { LoadingComponent } from '../loading/loading.component';
+
 @Component({
   selector: 'app-modal-detail-progress-original-job',
-  imports: [FormsModule, CommonModule, NzTableModule],
+  imports: [FormsModule, CommonModule, NzTableModule, LoadingComponent],
   templateUrl: './modal-detail-progress-original-job.component.html',
   styleUrl: './modal-detail-progress-original-job.component.css',
 })
@@ -28,35 +30,37 @@ export class ModalDetailProgressOriginalJobComponent {
   ) {}
 
   ngOnInit(): void {
-    this.loadData('1');
+    this.loadData();
   }
-  onPageChange(currentPage: number) {
-    this.loadData(currentPage.toString());
-  }
-  loadData(currentPage: string) {
+
+  loadData() {
+    this.isloading = true;
     this.detailProgressService
-      .detailProgressTaskParent(this.viecGoc.taskId.toString(), currentPage)
+      .getFullProgressDetail(this.viecGoc.taskId.toString())
       .subscribe({
         next: (data) => {
-          this.totalItems = data.children.length;
-
           this.detailProgressTaskParentModel = data;
+          this.totalItems = data.children.length;
+          this.isloading = false;
         },
         error: (err) => {
           this.toastService.Warning(err.message || 'Lấy dữ liệu thất bại !');
+          this.isloading = false;
         },
       });
-    this.isloading = false;
   }
+
   convertDateTime(datetime: string): string {
     return convertToVietnameseDate(datetime);
   }
+
   convertStatusText(status: string | null): string {
     return (
       ConvertStatusTask[status as keyof typeof ConvertStatusTask] ||
       'Không xác định'
     );
   }
+
   onClose() {
     this.isShowModal.emit(false);
   }
