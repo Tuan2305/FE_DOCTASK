@@ -13,3 +13,10 @@ export interface UserRelationModel {
   subordinates: UserModel[];
   peers: UserModel[];
 }
+export interface ChangePasswordRequest{
+  oldPassword: string;
+  newPassword: string;
+}
+export interface ChangePasswordResponse{
+  
+}

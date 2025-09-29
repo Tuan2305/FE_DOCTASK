@@ -1,6 +1,6 @@
 export interface ResponseApi<T = any> {
   success: boolean;
-  data: T;
+  data: T | null;
   error?: string;
   message: string;
 }
