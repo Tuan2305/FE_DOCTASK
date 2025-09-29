@@ -47,31 +47,30 @@ export class ModalReviewProgressComponent {
     }
     setTimeout(() => {
       this.isOkLoading = true;
-      const obj = {
-        progressId: this.userSelectedId,
-        status: this.accpectProgress ? 'approved' : 'rejected',
-        comment: this.messageValue,
-      };
-      this.reviewChildJobService.approveProgress(obj).subscribe({
-        next: () => {
-          this.accpectProgress
-            ? this.toastService.Success('Phê duyệt báo cáo thành công !')
-            : this.toastService.Success('Từ chối báo cáo thành công !');
-        },
-        error: () => {
-          this.accpectProgress
-            ? this.toastService.Warning('Lỗi phê duyệt báo cáo !')
-            : this.toastService.Warning('Lỗi từ chối báo cáo !');
-        },
-      });
-      this.isOkLoading = false;
 
-      // console.log('send user');
+      const progressId = this.userSelectedId as string;
+
+      if (this.accpectProgress) {
+        // Accept report
+        this.reviewChildJobService.acceptProgress(progressId).subscribe({
+          next: () => {
+            this.toastService.Success('Phê duyệt báo cáo thành công !');
+            // refresh review list after accepting
+            this.reviewChildJobService.triggerRefresh();
+          },
+          error: () => {
+            this.toastService.Warning('Lỗi phê duyệt báo cáo !');
+          },
+        });
+      } else {
+        // Reject flow is not provided by backend yet
+        this.toastService.Warning('Hiện chưa hỗ trợ từ chối báo cáo.');
+      }
 
       this.isVisible = false;
       this.isOkLoading = false;
       return;
-    }, 1000);
+    }, 300);
   }
 
   handleCancel(): void {

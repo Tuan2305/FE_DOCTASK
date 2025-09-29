@@ -289,9 +289,25 @@ export class ReviewChildJobComponent implements OnInit {
         return status;
     }
   }
+
+
+  accept(progressId: number) {
+    this.reviewChildJobService.acceptProgress(progressId.toString()).subscribe({
+      next: () => {
+        this.toastService.Success('Chấp nhận báo cáo và cập nhật tiến độ thành công.');
+        this.refreshData(); // reload list so status becomes 'approved'
+      },
+      error: (err) => {
+        this.toastService.Warning(err?.message || 'Lỗi phê duyệt báo cáo !');
+      },
+    });
+  }
+
   showInfo() {
     this.toastService.ForFeature();
   }
+
+
 }
 
 interface GroupedUserProgress {

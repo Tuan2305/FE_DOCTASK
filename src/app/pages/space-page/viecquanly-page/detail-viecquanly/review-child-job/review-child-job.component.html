@@ -81,6 +81,7 @@
           <th nzWidth=" 15%">Đề xuất</th>
           <th nzWidth=" 15%">Phản hồi</th>
           <th nzWidth=" 11%">File đính kèm</th>
+          
           <th nzWidth=" 11%">Thao tác</th>
         </tr>
       </thead>
@@ -110,7 +111,7 @@
                 "
                 (click)="showModalSendRemind(group.userId.toString())"
               >
-                Nhắc nhở
+   
               </button>
             </td>
           </tr>
@@ -150,34 +151,53 @@
                     ></i>
                   </div>
                 </ng-template>
-              </td>
+              </td>              
+                            <!-- Thao tác -->
+                            <td style="max-width: 140px">
+                              <!-- Có báo cáo và đang chờ xét duyệt -->
+                              <ng-container *ngIf="item.status === 'pending' || item.status === 'submitted'; else afterReviewedOrNoReport">
+                                <div class="flex" style="gap: 8px; flex-wrap: wrap">
+                                  <button
+                                    nz-button
+                                    nzType="primary"
+                                    style="background:#28a745!important;border-color:#28a745!important"
+                                    (click)="accept(item.progressId)"
+                                  >
+                                    Accept
+                                  </button>
+                                  <button
+                                    nz-button
+                                    nzType="default"
+                                    style="background:#dc3545!important;color:#fff;border-color:#dc3545!important"
+                                    (click)="apporveProgress(item.progressId.toString(), false)"
+                                  >
+                                    Từ chối
+                                  </button>
+                                  <button
+                                    nz-button
+                                    nzType="default"
+                                    (click)="showModalSendRemind(group.userId.toString())"
+                                  >
+                                    Nhắc nhở
+                                  </button>
+                                </div>
+                              </ng-container>
+              
+                              <!-- Đã duyệt hoặc chưa có báo cáo -->
+                              <ng-template #afterReviewedOrNoReport>
+                                <div class="flex" style="gap: 8px">
+                                  <button
+                                    nz-button
+                                    nzType="default"
+                                    (click)="showModalSendRemind(group.userId.toString())"
+                                  >
+                                    Nhắc nhở
+                                  </button>
+                                </div>
+                              </ng-template>
+                            </td>
 
-              <td style="max-width: 70px">
-                <div *ngIf="item.status == 'submitted'" class="consider">
-                  <button
-                    nz-button
-                    nzType="primary"
-                    style="
-                      background: #28a745 !important;
-                      border-color: #28a745 !important;
-                    "
-                    (click)="apporveProgress(item.progressId.toString(), true)"
-                  >
-                    Phê duyệt
-                  </button>
-                  <button
-                    nz-button
-                    nzType="primary"
-                    style="
-                      background: #dc3545 !important;
-                      border-color: #dc3545 !important;
-                    "
-                    (click)="apporveProgress(item.progressId.toString(), false)"
-                  >
-                    Từ chối
-                  </button>
-                </div>
-              </td>
+
             </tr>
           </ng-container>
         </ng-container>
