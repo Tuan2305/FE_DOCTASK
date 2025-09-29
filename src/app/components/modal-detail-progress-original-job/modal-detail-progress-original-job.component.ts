@@ -8,11 +8,11 @@ import { DetailProgressService } from '../../service/detail-progress.service';
 import { convertToVietnameseDate } from '../../helper/convertToVNDate';
 import { ConvertStatusTask } from '../../constants/util';
 import { NzTableModule } from 'ng-zorro-antd/table';
-import { LoadingComponent } from '../loading/loading.component';
+// import { LoadingComponent } from '../loading/loading.component';
 
 @Component({
   selector: 'app-modal-detail-progress-original-job',
-  imports: [FormsModule, CommonModule, NzTableModule, LoadingComponent],
+  imports: [FormsModule, CommonModule, NzTableModule],
   templateUrl: './modal-detail-progress-original-job.component.html',
   styleUrl: './modal-detail-progress-original-job.component.css',
 })
