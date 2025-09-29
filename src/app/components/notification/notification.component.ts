@@ -5,6 +5,7 @@ import {
   OnInit,
   DestroyRef,
   ChangeDetectorRef,
+  OnDestroy,
 } from '@angular/core';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { ToastService } from '../../service/toast.service';
@@ -17,7 +18,9 @@ import { NzCollapseModule } from 'ng-zorro-antd/collapse';
 import { ReminderModel } from '../../models/reminder.model';
 import { Router } from '@angular/router';
 import { typeNotification } from '../../constants/util';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
+import { NotificationPayload } from '../../interface/payload-realtime';
+import { SignalrService } from '../../service/signalr/signalr.service';
 
 @Component({
   selector: 'app-notification',
@@ -31,7 +34,7 @@ import { Observable } from 'rxjs';
   templateUrl: './notification.component.html',
   styleUrl: './notification.component.css',
 })
-export class NotificationComponent implements OnInit {
+export class NotificationComponent implements OnInit,OnDestroy {
   private destroyRef = inject(DestroyRef);
   isLoading = true;
   listNotification: ReminderModel[] = [];
@@ -39,19 +42,36 @@ export class NotificationComponent implements OnInit {
   totalNotificationIsNotRead: number = 0;
   dateTimeNow: string = '';
   data$!: Observable<ReminderModel[]>;
+  realtimeNotifications: NotificationPayload[]=[];
+  private sub = new Subscription();
 
   constructor(
     private toastService: ToastService,
     private NotiService: NotificationService,
-    private route: Router
+    private route: Router,
+    private signalrService : SignalrService
   ) {}
+  
 
   ngOnInit(): void {
+    this.signalrService.startConnection();
+
+    // 2️⃣ Subscribe thông báo realtime
+    this.sub.add(
+      this.signalrService.notification$.subscribe(msg => {
+        if (msg) {
+          this.realtimeNotifications.unshift(msg);
+          console.log('[Reminder] 🔔 Realtime Notification:', msg);
+        }
+      })
+    );
     this.dateTimeNow = convertToVietnameseDate(new Date().toISOString());
     this.data$ = this.NotiService.onRefresh();
     this.loadData();
   }
-
+  ngOnDestroy(): void {
+    this.sub.unsubscribe(); // tránh memory leak
+  }
   ChangeIsRead(item: ReminderModel) {
     if (!item.isNotified) {
       item.isNotified = true;
@@ -74,6 +94,8 @@ export class NotificationComponent implements OnInit {
   }
 
   maskreadNoti(reminderId: string) {
+    
+    
     this.NotiService.maskRead(reminderId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({

@@ -63,7 +63,7 @@ export class AuthService {
   logout(): void {
     this.clearTokens();
     localStorage.setItem('auth/login', 'false');
-    this.router.navigate(['auth/login']);
+    this.router.navigate(['/login']);
   }
 
   getProfile(): Observable<{ email: string; username: string }> {
