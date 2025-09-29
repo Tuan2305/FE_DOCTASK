@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../environment/environment';
-import { BehaviorSubject, map, Observable, switchMap } from 'rxjs';
+import { BehaviorSubject, map, Observable, switchMap, of } from 'rxjs';
 import { ResponseApi } from '../interface/response';
 import { UserProgressModel } from '../models/review-job.model';
 import { ResponsePaganation } from '../interface/response-paganation';
@@ -39,39 +39,41 @@ export class ReviewChildJobService {
 
   getReviewByUser(
     taskid: string,
-    startDate: string,
-    endDate: string,
+    _startDate: string,
+    _endDate: string,
     listUserId: string[],
-    numberPage: string
+    _numberPage: string
   ): Observable<ResponsePaganation<UserProgressModel>> {
-    let params = new HttpParams()
-      .set('taskId', taskid)
-      .set('startDate', startDate)
-      .set('endDate', endDate)
-      .set('page', numberPage);
-
-    // Nếu listUserId không rỗng, thêm nhiều userId
-    listUserId.forEach((id) => {
-      params = params.append('userId', id);
-    });
+    // New endpoint: GET /progress/review/{taskId}?assigneeId={id}
+    let params = new HttpParams();
+    if (listUserId && listUserId.length > 0) {
+      // backend currently supports a single assigneeId
+      params = params.set('assigneeId', listUserId[0]);
+    }
 
     return this.http
-      .get<ResponseApi<ResponsePaganation<UserProgressModel>>>(
-        `${this.apiUrl}review/by-task-frequency`,
-        {
-          params,
-        }
+      .get<ResponseApi<UserProgressModel[]>>(
+        `${this.apiUrl}progress/review/${taskid}`,
+        { params }
       )
       .pipe(
         map((res) => {
-          if (!res.success) {
-            throw new Error(res.message);
-          } else {
-            return res.data;
-          }
+          if (!res.success) throw new Error(res.message);
+          const items = res.data ?? [];
+          // adapt to pagination contract used by UI
+          const pageSize = items.length || 10;
+          const totalItems = items.length;
+          return {
+            currentPage: 1,
+            totalPages: 1,
+            pageSize,
+            totalItems,
+            items,
+          } as ResponsePaganation<UserProgressModel>;
         })
       );
   }
+
   getUsersReview(taskid: string): Observable<UserModel[]> {
     const url = `${this.apiUrl}review/task/${taskid}/users`;
 
@@ -85,22 +87,25 @@ export class ReviewChildJobService {
       })
     );
   }
-  approveProgress(obj: {}): Observable<void> {
-    const url = `${this.apiUrl}review/approve-progress`;
 
-    return this.http.post<ResponseApi<void>>(url, obj).pipe(
+  // Accept progress (new API)
+  acceptProgress(progressId: string): Observable<void> {
+    const url = `${this.apiUrl}progress/${progressId}/accept`;
+    return this.http.post<ResponseApi<void>>(url, {}).pipe(
       map((res) => {
-        if (!res.success) {
-          throw new Error(res.message);
-        } else {
-          return res.data;
-        }
+        if (!res.success) throw new Error(res.message);
+        return res.data;
       })
     );
   }
-  getFileReport(filePath: string): Observable<string> {
-    const url = `${this.apiUrl}review/view-file?filePath=${filePath}`;
 
+  // If filePath is already a full URL, return it as-is; otherwise call old view-file API
+  getFileReport(filePath: string): Observable<string> {
+    if (!filePath) return of('');
+    if (/^https?:\/\//i.test(filePath)) {
+      return of(filePath);
+    }
+    const url = `${this.apiUrl}review/view-file?filePath=${filePath}`;
     return this.http.get<ResponseApi<string>>(url).pipe(
       map((res) => {
         if (!res.success) {
