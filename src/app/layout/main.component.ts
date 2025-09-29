@@ -24,6 +24,6 @@ export class MainComponent implements OnInit {
     this.isMobile =
       /iPhone|iPad|iPod|Android|webOS|BlackBerry|Windows Phone/i.test(
         navigator.userAgent
-      ) || window.innerWidth < 768;
+      ) || window.innerWidth < 100;
   }
 }

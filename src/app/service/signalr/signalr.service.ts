@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { BehaviorSubject } from 'rxjs';
+import { environment } from '../../environment/environment';
 
 export interface NotificationPayload {
   title: string;
@@ -20,9 +21,9 @@ export class SignalrService {
     if (this.hubConnection) return; // tránh start nhiều lần
 
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl('http://localhost:5168/notificationHub', {
+      .withUrl(`${environment.realtimeURL}/notificationHub`, {
         accessTokenFactory: () => {
-          const token = localStorage.getItem('access_token');
+          const token = localStorage.getItem('accessToken');
           console.log('[SignalR] 🪪 token =', token); // giữ nguyên log
           return token || '';
         },

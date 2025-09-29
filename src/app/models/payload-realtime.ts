@@ -4,3 +4,4 @@ export interface NotificationPayload {
   timestamp: string;
   data?: any;
 }
+export type NotificationItem = NotificationPayload & { isRead: boolean };

@@ -19,8 +19,9 @@ import { ReminderModel } from '../../models/reminder.model';
 import { Router } from '@angular/router';
 import { typeNotification } from '../../constants/util';
 import { Observable, Subscription } from 'rxjs';
-import { NotificationPayload } from '../../interface/payload-realtime';
+import { NotificationItem, NotificationPayload } from '../../models/payload-realtime';
 import { SignalrService } from '../../service/signalr/signalr.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-notification',
@@ -30,6 +31,7 @@ import { SignalrService } from '../../service/signalr/signalr.service';
     PageEmptyComponent,
     NzToolTipModule,
     NzCollapseModule,
+    FormsModule
   ],
   templateUrl: './notification.component.html',
   styleUrl: './notification.component.css',
@@ -42,7 +44,8 @@ export class NotificationComponent implements OnInit,OnDestroy {
   totalNotificationIsNotRead: number = 0;
   dateTimeNow: string = '';
   data$!: Observable<ReminderModel[]>;
-  realtimeNotifications: NotificationPayload[]=[];
+  realtimeNotifications: NotificationItem[]=[];
+  //sub cho realtime
   private sub = new Subscription();
 
   constructor(
@@ -56,12 +59,13 @@ export class NotificationComponent implements OnInit,OnDestroy {
   ngOnInit(): void {
     this.signalrService.startConnection();
 
-    // 2️⃣ Subscribe thông báo realtime
+    // Subscribe thông báo realtime
     this.sub.add(
       this.signalrService.notification$.subscribe(msg => {
         if (msg) {
-          this.realtimeNotifications.unshift(msg);
-          console.log('[Reminder] 🔔 Realtime Notification:', msg);
+          const item: NotificationItem = { ...msg, isRead: false };
+          this.realtimeNotifications.unshift(item);
+          console.log('[Reminder] Realtime Notification:', msg);
         }
       })
     );
@@ -92,6 +96,24 @@ export class NotificationComponent implements OnInit,OnDestroy {
       // this.route.navigate(['/viecduocgiao']);
     }
   }
+  //kiểm tra thông báo realtime đã đọc chưa
+  markNotificationRead(item: NotificationItem) {
+  if (!item.isRead) {
+    item.isRead = true;
+    console.log('[Reminder] Marked as read:', item.title);
+  }
+}
+  //click chuông đồng nghĩa thông báo được đọc
+  markAllNotificationRead()
+  {
+    this.realtimeNotifications.forEach(r => {
+      r.isRead = true;
+    });
+    this.listNotification.forEach(r => {
+      r.isNotified =true;
+    });
+    this.updateUnreadCount();
+  }
 
   maskreadNoti(reminderId: string) {
     
@@ -114,7 +136,6 @@ export class NotificationComponent implements OnInit,OnDestroy {
       next: (list) => {
         if (list.length === 0) {
           this.isEmptlist = true;
-          this.totalNotificationIsNotRead = 0;
         } else {
           this.totalNotificationIsNotRead = list.filter(
             (r) => !r.isNotified
@@ -129,6 +150,7 @@ export class NotificationComponent implements OnInit,OnDestroy {
         this.toastService.Error(err.message || 'Lấy dữ liệu thất bại !');
       },
     });
+    this.updateUnreadCount();
   }
 
   getTimeAgo(dateString: string): string {
@@ -149,4 +171,11 @@ export class NotificationComponent implements OnInit,OnDestroy {
   convertDate(date: string): string {
     return convertToVietnameseDate(date);
   }
+  //tính tổng thông báo chưa đọc
+  private updateUnreadCount() {
+  const unreadRealtime = this.realtimeNotifications.filter(r => !r.isRead).length;
+  const unreadDb = this.listNotification.filter(r => !r.isNotified).length;
+  this.totalNotificationIsNotRead = unreadRealtime + unreadDb;
+}
+
 }
