@@ -82,7 +82,7 @@ export class NotificationComponent implements OnInit,OnDestroy {
   tap(({ items, metaData }) => {
     this.listNotification = items;
     this.isEmptlist = items.length === 0;
-    this.updateUnreadCount();
+    this.refreshUnreadCount();
     this.hasNext = metaData?.hasNext ?? false;
     this.isLoading = false;
   }),
@@ -98,25 +98,30 @@ export class NotificationComponent implements OnInit,OnDestroy {
     this.sub.unsubscribe(); // tránh memory leak
   }
   ChangeIsRead(item: ReminderModel) {
-    if (!item.isNotified) {
-      item.isNotified = true;
-      this.maskreadNoti(item.reminderId.toString());
-      // Không cần gọi loadData vì maskRead trong service đã gọi triggerRefresh
-    }
-    if (
-      item.type == typeNotification.createTask ||
-      item.type == typeNotification.putDeadlineTask ||
-      item.type == typeNotification.taskReminder
-    ) {
-      this.route.navigate(['/viecduocgiao'], {
-        queryParams: { highlightId: item.taskid, _t: Date.now() },
+  if (!item.isNotified) {
+    item.isNotified = true; // update UI trước
+    this.NotiService.maskReminderRead(item.reminderId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.refreshUnreadCount(),
+        error: () => {
+          item.isNotified = false; // rollback
+          this.toastService.Error('Đánh dấu đọc thất bại!');
+        }
       });
-    }
-    if (item.type == typeNotification.updateProgress) {
-      // this.toastService.Info('Tính năng đang phát triển !')
-      // this.route.navigate(['/viecduocgiao']);
-    }
   }
+
+  if (
+    item.type == typeNotification.createTask ||
+    item.type == typeNotification.putDeadlineTask ||
+    item.type == typeNotification.taskReminder
+  ) {
+    this.route.navigate(['/viecduocgiao'], {
+      queryParams: { highlightId: item.taskid, _t: Date.now() },
+    });
+  }
+}
+
   //kiểm tra thông báo realtime đã đọc chưa
   markNotificationRead(item: NotificationItem) {
   if (!item.isRead) {
@@ -125,16 +130,30 @@ export class NotificationComponent implements OnInit,OnDestroy {
   }
 }
   //click chuông đồng nghĩa thông báo được đọc
-  markAllNotificationRead()
-  {
-    this.realtimeNotifications.forEach(r => {
-      r.isRead = true;
-    });
-    this.listNotification.forEach(r => {
-      r.isNotified =true;
-    });
-    this.updateUnreadCount();
-  }
+  markAllNotificationRead() {
+  // Cập nhật UI local ngay
+ 
+
+  // Gọi API markRead cho từng thông báo DB
+  const reminderIds = this.listNotification
+    .filter(r => !r.isNotified) // lọc chưa đọc
+    .map(r => r.reminderId);
+
+  reminderIds.forEach(id => {
+    this.NotiService.maskReminderRead(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {}, // thành công thì thôi
+        error: () => {
+          console.warn(`Đánh dấu thất bại cho reminderId=${id}`);
+        }
+      });
+  });
+
+  // Sau cùng sync lại count từ server (cho chắc)
+  this.refreshUnreadCount();
+}
+
 
   maskreadNoti(reminderId: string) {
     
@@ -193,11 +212,11 @@ export class NotificationComponent implements OnInit,OnDestroy {
     return convertToVietnameseDate(date);
   }
   //tính tổng thông báo chưa đọc
-  private updateUnreadCount() {
-  const unreadRealtime = this.realtimeNotifications.filter(r => !r.isRead).length;
-  const unreadDb = this.listNotification.filter(r => !r.isNotified).length;
-  this.totalNotificationIsNotRead = unreadRealtime + unreadDb;
-}
+//   private updateUnreadCount() {
+//   const unreadRealtime = this.realtimeNotifications.filter(r => !r.isRead).length;
+//   const unreadDb = this.listNotification.filter(r => !r.isNotified).length;
+//   this.totalNotificationIsNotRead = unreadRealtime + unreadDb;
+// }
 //cuộn để load reminder
 onScroll(): void {
   if (this.hasNext) {
@@ -220,6 +239,19 @@ loadReminders(): void {
      this.data$ = of({ items: this.listNotification, metaData: res.metaData });
     console.log(`Loaded page ${this.page}, hasNext = ${this.hasNext}`);
   });
+}
+//load lại tổng chưa đọc
+private refreshUnreadCount() {
+  this.NotiService.getUnreadReminder()
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
+      next: (res) => {
+        this.totalNotificationIsNotRead = res.data || 0;
+      },
+      error: () => {
+        this.totalNotificationIsNotRead = 0;
+      }
+    });
 }
 
 }

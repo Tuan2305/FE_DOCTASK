@@ -71,19 +71,29 @@ getAll(page: number, size: number): Observable<{ items: ReminderModel[]; metaDat
     );
   }
 
-  maskAllRead(): Observable<void> {
-    const url = `${this.apiUrl}NotificationUser/mark-read`;
-    return this.http.put<ResponseApi>(url, {}).pipe(
-      map((res) => {
-        if (!res.success) {
-          this.toastService.Error(res.message);
-          return;
-        }
-        this.toastService.Success(res.message);
-        this.triggerRefresh(); // Kích hoạt refresh sau khi đánh dấu tất cả đã đọc
-        return;
-      })
+  // maskAllRead(): Observable<void> {
+  //   const url = `${this.apiUrl}NotificationUser/mark-read`;
+  //   return this.http.put<ResponseApi>(url, {}).pipe(
+  //     map((res) => {
+  //       if (!res.success) {
+  //         this.toastService.Error(res.message);
+  //         return;
+  //       }
+  //       this.toastService.Success(res.message);
+  //       this.triggerRefresh(); // Kích hoạt refresh sau khi đánh dấu tất cả đã đọc
+  //       return;
+  //     })
+  //   );
+    
+  // }
+  maskReminderRead(reminderId:number) : Observable<ResponseApi<boolean>>{
+    return this.http.patch<ResponseApi<boolean>>(
+      `${this.apiUrl}reminder/read/${reminderId}`,{}
     );
   }
-  
+  getUnreadReminder():Observable<ResponseApi<number>>{
+    return this.http.get<ResponseApi<number>>(
+      `${this.apiUrl}reminder/unread/count`
+    );
+  }
 }
