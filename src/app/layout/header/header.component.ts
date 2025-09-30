@@ -20,13 +20,12 @@ import { ModalChangePasswordComponent } from '../../components/modal-change-pass
     NzModalModule,
     NzDropDownModule,
     NotificationComponent,
+    
   ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css',
 })
 export class HeaderComponent {
-  @ViewChild(ModalChangePasswordComponent)
-  modalChangePassword!: ModalChangePasswordComponent;
   isShowModalReviewAllJob = false;
   isShowModalAssignWork = false;
   currentRoute: string = '';
@@ -94,10 +93,13 @@ export class HeaderComponent {
   logout() {
     this.authService.logout();
   }
-  openChangePassword()
-  {
-    this.modalChangePassword.open();
-  }
+  openChangePassword(): void {
+  this.modal.create({
+    nzTitle: 'Đổi mật khẩu',
+    nzContent: ModalChangePasswordComponent,
+    nzFooter: null,
+  });
+}
   
   //----------
   ngOnDestroy() {}

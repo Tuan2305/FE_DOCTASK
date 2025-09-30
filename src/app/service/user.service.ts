@@ -14,7 +14,7 @@ export class UserService {
   }
   changePassword(request: ChangePasswordRequest): Observable<ResponseApi<null>> {
   return this.httpClient.post<ResponseApi<null>>(
-    `${this.url}/change-password`,
+    `${this.url}user/change-password`,
     request
   );
 }

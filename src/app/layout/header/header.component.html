@@ -33,9 +33,10 @@
               <div class="title">{{ email }}</div>
             </div>
           </div>
-          <li nz-menu-item (click)="showInfo()">
+          <li nz-menu-item (click)="openChangePassword()">
             <i class="fa-solid fa-lock icon"></i>
-            <p class="SubmenuTooltip title-list" (click)="showModalRegister()">Đổi mật khẩu</p>
+            <p class="SubmenuTooltip title-list" >Đổi mật khẩu</p>
+            
           </li>
           <li nz-menu-item (click)="logout()">
             <i class="fa-solid fa-arrow-right-from-bracket icon"></i>
@@ -46,3 +47,4 @@
     </div>
   </div>
 </header>
+
