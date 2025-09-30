@@ -5,3 +5,12 @@ export interface ResponsePaganation<T> {
   totalItems: number;
   items: T[];
 }
+
+export interface Metadata{
+  pageIndex:number;
+  totalPages: number;
+  totalItems: number;
+  currentItems: number;
+  hasPrevious:boolean;
+  hasNext: boolean;
+}

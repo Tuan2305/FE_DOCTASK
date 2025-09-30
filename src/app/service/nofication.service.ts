@@ -1,10 +1,11 @@
 import { ToastService } from './toast.service';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, map, Observable, switchMap } from 'rxjs';
+import { BehaviorSubject, map, Observable, startWith, switchMap } from 'rxjs';
 import { environment } from '../environment/environment';
 import { ResponseApi } from '../interface/response';
 import { ReminderModel } from '../models/reminder.model';
+import { Metadata } from '../interface/response-paganation';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
@@ -21,23 +22,40 @@ export class NotificationService {
   }
 
   // Observable để component subscribe và nhận dữ liệu khi refresh
-  onRefresh(): Observable<ReminderModel[]> {
-    return this.refreshTrigger$.pipe(switchMap(() => this.getAll()));
-  }
+  onRefresh(page: number, size: number): Observable<{ items: ReminderModel[]; metaData: Metadata }> {
+  return this.refreshTrigger$.pipe(
+    startWith(null), // load ngay lần đầu
+    switchMap(() => this.getAll(page, size))
+  );
+}
 
-  getAll(): Observable<ReminderModel[]> {
-    const url = `${this.apiUrl}reminder/user-reminders`;
-    return this.http.get<ResponseApi<ReminderModel[]>>(url).pipe(
+getAll(page: number, size: number): Observable<{ items: ReminderModel[]; metaData: Metadata }> {
+  const url = `${this.apiUrl}reminder?Page=${page}&Size=${size}`;
+
+  return this.http
+    .get<ResponseApi<{ items: ReminderModel[]; metaData: Metadata }>>(url)
+    .pipe(
       map((res) => {
-        if (!res.success) {
-          console.log('Failed to fetch tasks');
-          return [];
+        if (res.success && res.data) {
+          return {
+            items: res.data.items ?? [],
+            metaData: res.data.metaData,
+          };
         }
-        return res.data;
+        return {
+          items: [],
+          metaData: {
+            pageIndex: 0,
+            totalPages: 0,
+            totalItems: 0,
+            currentItems: 0,
+            hasPrevious: false,
+            hasNext: false,
+          },
+        };
       })
     );
-  }
-
+}
   maskRead(notiId: string): Observable<void> {
     const url = `${this.apiUrl}Reminder/update-notify/${notiId}`;
     return this.http.put<ResponseApi>(url, {}).pipe(
@@ -67,4 +85,5 @@ export class NotificationService {
       })
     );
   }
+  
 }

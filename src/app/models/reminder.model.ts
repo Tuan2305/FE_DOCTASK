@@ -1,3 +1,5 @@
+import { Metadata } from "../interface/response-paganation";
+
 export interface ReminderModel {
   reminderId: number;
   title: string;

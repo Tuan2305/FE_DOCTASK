@@ -5,7 +5,12 @@
   </div>
 </a>
 <nz-dropdown-menu #menu="nzDropdownMenu">
-  <div class="notification-container">
+  <div class="notification-container" 
+  infiniteScroll
+  [infiniteScrollDistance]="2"
+  [infiniteScrollThrottle]="200"
+  [scrollWindow]="false"
+  (scrolled)="onScroll()">
     <div class="activity-header">
       <h2>Thông báo</h2>
       <!-- <div>
@@ -41,14 +46,17 @@
       </div>
     }
   }
-  @if(listNotification.length > 0) {
-    @for(item of listNotification; track item.reminderId) {
+  @let list = (data$ | async);
+
+@if(list && list.items.length > 0) {
+  
+  @for(item of list.items; track item.reminderId) {
     <div
       (click)="ChangeIsRead(item)"
       class="notification-item"
       [ngClass]="{ unread: !item.isNotified }"
       nz-menu-item
-    >
+  (scrolled)="onScroll()"  >
       <div class="icon m-r-10">📋</div>
       <div class="text">
         <div>
@@ -59,6 +67,8 @@
       </div>
     </div>
   }
+} @else {
+  <div class="empty">Không có thông báo nào</div>
 }
   </div>
 </nz-dropdown-menu>
