@@ -1,11 +1,16 @@
-<a nz-dropdown nzTrigger="click" [nzDropdownMenu]="menu">
+<a nz-dropdown nzTrigger="click" [nzDropdownMenu]="menu" (click)="markAllNotificationRead()">
   <div class="notification-icon">
     <i class="fa-solid fa-bell"></i>
     <span class="badge">{{ totalNotificationIsNotRead }}</span>
   </div>
 </a>
 <nz-dropdown-menu #menu="nzDropdownMenu">
-  <div class="notification-container">
+  <div class="notification-container" 
+  infiniteScroll
+  [infiniteScrollDistance]="2"
+  [infiniteScrollThrottle]="200"
+  [scrollWindow]="false"
+  (scrolled)="onScroll()">
     <div class="activity-header">
       <h2>Thông báo</h2>
       <!-- <div>
@@ -22,14 +27,36 @@
     <div *ngIf="isEmptlist">
       <app-page-empty></app-page-empty>
     </div>
+    @if(realtimeNotifications.length > 0) {
 
+    
+    @for(r of realtimeNotifications; track r.timestamp + '-' + $index) {
+      <div (click)="markNotificationRead(r)"
+      class="notification-item"
+      [ngClass]="{unread : r.isRead}"
+      nz-menu-item>
+    <div class="icon m-r-10">📋</div>
+    <div class="text">
+      <div>
+        <p>{{r.title}}</p>
+        <span class="time">{{r.message}}</span>
+      </div>
+      <span class="time">{{getTimeAgo(r.timestamp)}}</span>
+    </div>    
+      </div>
+    }
+  }
+  @let list = (data$ | async);
+
+@if(list && list.items.length > 0) {
+  
+  @for(item of list.items; track item.reminderId) {
     <div
-      *ngFor="let item of listNotification"
       (click)="ChangeIsRead(item)"
       class="notification-item"
       [ngClass]="{ unread: !item.isNotified }"
       nz-menu-item
-    >
+  (scrolled)="onScroll()"  >
       <div class="icon m-r-10">📋</div>
       <div class="text">
         <div>
@@ -39,5 +66,9 @@
         <span class="time">{{ getTimeAgo(item.triggerTime) }}</span>
       </div>
     </div>
+  }
+} @else {
+  <div class="empty">Không có thông báo nào</div>
+}
   </div>
 </nz-dropdown-menu>

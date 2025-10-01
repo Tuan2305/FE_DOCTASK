@@ -9,3 +9,4 @@ export interface NotificationModel {
   isNotified: boolean;
   notifiedAt: string | null;
 }
+

@@ -1,7 +1,7 @@
 import { AuthService } from './../../service/auth.service';
 import { ToastService } from './../../service/toast.service';
 import { StorageService } from './../../service/storage.service';
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { SHARED_LIBS } from '../main-sharedLib';
 
 import { ModalSummarizeReportsComponent } from '../../components/modal-summarize-reports/modal-summarize-reports.component';
@@ -10,6 +10,7 @@ import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NotificationComponent } from '../../components/notification/notification.component';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
+import { ModalChangePasswordComponent } from '../../components/modal-change-password/modal-change-password.component';
 
 @Component({
   selector: 'app-header',
@@ -19,6 +20,7 @@ import { filter } from 'rxjs';
     NzModalModule,
     NzDropDownModule,
     NotificationComponent,
+    
   ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css',
@@ -91,6 +93,14 @@ export class HeaderComponent {
   logout() {
     this.authService.logout();
   }
+  openChangePassword(): void {
+  this.modal.create({
+    nzTitle: 'Đổi mật khẩu',
+    nzContent: ModalChangePasswordComponent,
+    nzFooter: null,
+  });
+}
+  
   //----------
   ngOnDestroy() {}
 }

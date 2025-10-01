@@ -1,3 +1,5 @@
+import { Metadata } from "../interface/response-paganation";
+
 export enum FrequencyType {
   Daily = 'Ngày',
   Weekly = 'Tuần',
@@ -46,3 +48,12 @@ export enum typeNotification {
   approved = 'approved', // Báo cáo đã được phê duyệt
   rejected = 'rejected', // Báo cáo bị từ chối
 }
+//default metadata
+  export const DEFAULT_METADATA: Metadata = {
+  pageIndex: 0,
+  totalPages: 0,
+  totalItems: 0,
+  currentItems: 0,
+  hasPrevious: false,
+  hasNext: false,
+};
