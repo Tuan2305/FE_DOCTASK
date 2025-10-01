@@ -1,36 +1,50 @@
 export function convertToVietnameseDate(datetimeStr: string): string {
-  // Kiểm tra input hợp lệ
-  if (!datetimeStr || typeof datetimeStr !== 'string') {
-    return 'N/A';
-  }
+  if (!datetimeStr || typeof datetimeStr !== 'string') return 'N/A';
 
-  // Nếu chuỗi đã có múi giờ (+hh:mm hoặc Z) thì giữ nguyên,
-  // còn không thì coi nó là UTC (thêm 'Z')
-  const fixedStr = /([+-]\d{2}:\d{2}|Z)$/.test(datetimeStr)
-    ? datetimeStr
-    : datetimeStr + 'Z';
+  const normalized = datetimeStr.replace(' ', 'T'); // handle "YYYY-MM-DD HH:mm"
+  const hasTZ = /([+-]\d{2}:\d{2}|Z)$/.test(normalized);
+  const isDateOnly = /^\d{4}-\d{2}-\d{2}$/.test(normalized);
+  const isDateTimeNoTZ = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/.test(normalized);
 
-  const date = new Date(fixedStr);
-  
-  // Kiểm tra xem date có hợp lệ không
-  if (isNaN(date.getTime())) {
-    console.warn('Invalid date string:', datetimeStr);
-    return 'N/A';
-  }
+  let date: Date;
 
   try {
+    // 1) Has timezone: use as-is
+    if (hasTZ) {
+      date = new Date(normalized);
+    }
+    // 2) Date-only: parse as local date, and show only date (no time)
+    else if (isDateOnly) {
+      date = new Date(normalized);
+      if (isNaN(date.getTime())) return 'N/A';
+      return new Intl.DateTimeFormat('vi-VN', {
+        timeZone: 'Asia/Ho_Chi_Minh',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      }).format(date);
+    }
+    // 3) Date-time without timezone: treat as local time (do NOT append Z)
+    else if (isDateTimeNoTZ) {
+      date = new Date(normalized);
+    }
+    // 4) Fallback: use as-is
+    else {
+      date = new Date(normalized);
+    }
+
+    if (isNaN(date.getTime())) return 'N/A';
+
     return new Intl.DateTimeFormat('vi-VN', {
-      // hiển thị theo giờ VN
       timeZone: 'Asia/Ho_Chi_Minh',
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false,
+      hour12: false
     }).format(date);
-  } catch (error) {
-    console.warn('Error formatting date:', error);
+  } catch {
     return 'N/A';
   }
 }

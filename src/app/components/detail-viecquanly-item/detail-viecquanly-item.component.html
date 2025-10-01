@@ -201,7 +201,7 @@
         class="m-b-10"
         [nzShowTime]="{ nzFormat: 'HH:mm' }"
         nzFormat="yyyy-MM-dd HH:mm"
-        ngModel
+        [(ngModel)]="selectedRange"
         (ngModelChange)="onChangeDateModalEdit($event)"
       ></nz-range-picker>
     </div>

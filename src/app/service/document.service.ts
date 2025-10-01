@@ -21,7 +21,7 @@ export class DocumentService {
   }
 
   getAllDoc(): Observable<DocumentModel[]> {
-  const url = `${this.apiUrl}minio-file/user`;
+  const url = `${this.apiUrl}file/user`;
   return this.http.get<ResponseApi<ResponsePaganation<DocumentModel>>>(url).pipe(
     map((res) => {
       if (!res.success) throw Error(res.message);
@@ -30,7 +30,7 @@ export class DocumentService {
   );
 }
   uploadDoc(formData: FormData): Observable<DocumentModel> {
-    const url = `${this.apiUrl}minio-file/upload`;
+    const url = `${this.apiUrl}file/upload`;
 
     return this.http.post<ResponseApi<DocumentModel>>(url, formData).pipe(
       map((res) => {
@@ -42,7 +42,7 @@ export class DocumentService {
   }
 
   deleteDoc(id: string): Observable<ResponseApi> {
-    const url = `${this.apiUrl}UploadFile/${id}`;
+    const url = `${this.apiUrl}file/delete/${id}`;
 
     return this.http.delete<ResponseApi>(url).pipe(
       map((res) => {
@@ -54,7 +54,7 @@ export class DocumentService {
   }
 
   downloadFile(fileId: number): void {
-  const url = `${this.apiUrl}minio-file/download/${fileId}`;
+  const url = `${this.apiUrl}file/download/${fileId}`;
   this.http.get(url, { responseType: 'blob', observe: 'response' }).subscribe({
     next: (res) => {
       const contentDisposition = res.headers.get('content-disposition') || '';
