@@ -51,7 +51,7 @@ export class DetailViecquanlyComponent {
   ngOnInit() {
     this.route.params
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((params) => {     
+      .subscribe((params) => {
         this.taskId = +params['id']; // Gán taskId
         // Khởi tạo data$ sau khi có taskId
         this.data$ = this.detailViecquanlyService.onRefresh(
@@ -75,9 +75,10 @@ export class DetailViecquanlyComponent {
     );
   }
   onPageChange(currentPage: number) {
+    this.currentPage = currentPage;
     this.data$ = this.detailViecquanlyService.onRefresh(
       this.taskId.toString(),
-      currentPage.toString()
+      this.currentPage.toString()
     );
     this.getData();
   }
@@ -89,6 +90,8 @@ export class DetailViecquanlyComponent {
           this.listData = res.items;
           this.filterListDetailViecQuanLy = res.items;
           this.totalItems = res.totalItems;
+          this.pageSize = res.pageSize;
+          this.currentPage = res.currentPage;
         }, 500);
       },
       error: (err) => {
