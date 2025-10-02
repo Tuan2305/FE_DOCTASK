@@ -54,9 +54,8 @@
     <div
       (click)="ChangeIsRead(item)"
       class="notification-item"
-      [ngClass]="{ unread: !item.isNotified }"
-      nz-menu-item
-  (scrolled)="onScroll()"  >
+      [ngClass]="{ unread: item.isRead }"
+      nz-menu-item>
       <div class="icon m-r-10">📋</div>
       <div class="text">
         <div>

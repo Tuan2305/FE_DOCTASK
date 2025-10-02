@@ -63,7 +63,10 @@
               "buildTarget": "AI-Task:build:production"
             },
             "development": {
-              "buildTarget": "AI-Task:build:development"
+              "buildTarget": "AI-Task:build:development",
+              "host": "localhost",
+
+              "port": 4200
             }
           },
           "defaultConfiguration": "development"

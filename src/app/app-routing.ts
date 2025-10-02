@@ -25,4 +25,5 @@ export const routes: Routes = [
         (c) => c.PageNotFoundComponent
       ),
   },
+
 ];

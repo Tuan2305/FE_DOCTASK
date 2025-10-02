@@ -98,28 +98,16 @@ export class NotificationComponent implements OnInit,OnDestroy {
     this.sub.unsubscribe(); // tránh memory leak
   }
   ChangeIsRead(item: ReminderModel) {
-  if (!item.isNotified) {
-    item.isNotified = true; // update UI trước
-    this.NotiService.maskReminderRead(item.reminderId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => this.refreshUnreadCount(),
-        error: () => {
-          item.isNotified = false; // rollback
-          this.toastService.Error('Đánh dấu đọc thất bại!');
-        }
-      });
+  
+if (!item?.task.taskId) {
+    console.error("Reminder không có taskid:", item);
+    return;
   }
 
-  if (
-    item.type == typeNotification.createTask ||
-    item.type == typeNotification.putDeadlineTask ||
-    item.type == typeNotification.taskReminder
-  ) {
-    this.route.navigate(['/viecduocgiao'], {
-      queryParams: { highlightId: item.taskid, _t: Date.now() },
-    });
-  }
+  this.route.navigate(['/viecduocgiao'], {
+   
+  });   
+  
 }
 
   //kiểm tra thông báo realtime đã đọc chưa
@@ -136,7 +124,7 @@ export class NotificationComponent implements OnInit,OnDestroy {
 
   // Gọi API markRead cho từng thông báo DB
   const reminderIds = this.listNotification
-    .filter(r => !r.isNotified) // lọc chưa đọc
+    .filter(r => !r.isRead) // lọc chưa đọc
     .map(r => r.reminderId);
 
   reminderIds.forEach(id => {
@@ -252,6 +240,10 @@ private refreshUnreadCount() {
         this.totalNotificationIsNotRead = 0;
       }
     });
+  // const unreadRealtime = this.realtimeNotifications.filter(r => !r.isRead).length;
+  // const unreadDb = this.listNotification.filter(r => !r.isNotified).length;
+  // this.totalNotificationIsNotRead = unreadRealtime + unreadDb;
+
 }
 
 }
