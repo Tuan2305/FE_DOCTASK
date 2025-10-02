@@ -209,7 +209,15 @@ button:active .button_top {
 }
 
 .main-content {
-  transition: margin-left 0.3s;
+  height: 90%; 
+  width: 100%; 
+  overflow: auto; 
+  scrollbar-width: none;
+}
+
+.main-content.mobile-with-bottom-nav {
+  height: calc(90% - 70px); /* Trừ đi height của bottom navigation */
+  padding-bottom: 70px; /* Thêm padding để tránh bị che bởi bottom nav */
 }
 
 .sidebar-toggle {
@@ -427,7 +435,7 @@ button:active .button_top {
 /* ------- */
 /* app.component.css */
 .mobile-block-screen {
-  position: fixed;
+  position: fixed;                                                                
   top: 0;
   left: 0;
   width: 100vw;
@@ -440,4 +448,48 @@ button:active .button_top {
   justify-content: center;
   text-align: center;
   padding: 2rem;
+}
+
+/* Mobile overlay */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 48px; /* Height của header */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+.sidebar-overlay.active {
+  display: block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .layout-container {
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .main-content.mobile-with-bottom-nav {
+    height: calc(100vh - 48px - 70px); /* header height - bottom nav height */
+    padding-bottom: 0;
+  }
+
+}
+
+@media (max-width: 768px) {
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .container-viecquanly,
+  .task-detail-container,
+  .viecquanly-detail-container {
+    margin-bottom: 70px; /* Space for bottom navigation */
+    padding-bottom: 20px;
+  }
 }

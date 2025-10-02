@@ -1,20 +1,21 @@
-<div *ngIf="!isMobile" class="layout-container">
+<div class="layout-container">
   <app-header></app-header>
-  <div style="display: flex; height: 100%; width: 100%">
+  <div style="display: flex; height: 100%; width: 100%; position: relative">
     <app-sidebar></app-sidebar>
 
-    <div
-      style="height: 90%; width: 100%; overflow: auto; scrollbar-width: none"
-    >
+    <div class="main-content" [class.mobile-with-bottom-nav]="isMobile">
       <router-outlet></router-outlet>
     </div>
+
+    <!-- Mobile overlay: click to close sidebar -->
+    <div
+      class="sidebar-overlay"
+      (click)="closeSidebarFromOverlay()"
+      [class.active]="isMobile && isSidebarOpen"
+    ></div>
   </div>
+  
+  <!-- Bottom Navigation for Mobile -->
+  <app-bottom-navigation></app-bottom-navigation>
 </div>
-<nz-result
-  nzStatus="warning"
-  nzTitle="Ứng dụng không hỗ trợ trên nền tảng di động"
-  nzSubTitle="Vui lòng sử dụng máy tính hoặc table để truy cập ứng dụng"
->
-  <div nz-result-extra></div>
-</nz-result>
 <app-toast></app-toast>

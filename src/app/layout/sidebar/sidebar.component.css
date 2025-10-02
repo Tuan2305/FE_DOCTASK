@@ -285,7 +285,7 @@
     box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
   }
   .sidebar ul {
-    margin-top: 50px;
+    /* margin-top: 50px; */
   }
 
   .sidebar.collapsed {
@@ -310,6 +310,70 @@
     /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); */
   }
 
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+
+  .sidebar-overlay.active {
+    display: block;
+  }
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .sidebar.mobile {
+    position: fixed;
+    top: 48px; /* Height của header */
+    left: 0;
+    height: calc(100vh - 68px);
+    z-index: 1000;
+    /* width: 280px; */
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar.mobile.closed {
+    transform: translateX(-100%);
+  }
+
+  .sidebar.mobile:not(.closed) {
+    transform: translateX(0);
+  }
+
+  /* Remove bottom toggle on mobile */
+  .sidebar.mobile .sidebar-bottom-toggle {
+    display: none;
+  }
+
+  /* Full width menu items on mobile */
+  .sidebar.mobile .title-list,
+  .sidebar.mobile .sub-title-list {
+    display: block !important;
+  }
+
+  /* Adjust submenu positioning on mobile */
+  .sidebar.mobile .SpaceSubmenuTooltip {
+    position: relative;
+    left: 0;
+    top: 0;
+    box-shadow: none;
+    border: none;
+    background: #f8f9fa;
+    margin-left: 20px;
+    margin-top: 5px;
+  }
+}
+
+/* Overlay for mobile */
+@media (max-width: 768px) {
   .sidebar-overlay {
     display: none;
     position: fixed;

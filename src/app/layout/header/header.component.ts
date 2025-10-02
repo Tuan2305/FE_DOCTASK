@@ -11,16 +11,15 @@ import { NotificationComponent } from '../../components/notification/notificatio
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
 import { ModalChangePasswordComponent } from '../../components/modal-change-password/modal-change-password.component';
+import { LayoutService } from '../../service/layout.service';
 
 @Component({
   selector: 'app-header',
   imports: [
     ...SHARED_LIBS,
-
     NzModalModule,
     NzDropDownModule,
     NotificationComponent,
-    
   ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css',
@@ -31,14 +30,16 @@ export class HeaderComponent {
   currentRoute: string = '';
   username!: string;
   email!: string;
+  isMobile = false;
+
   constructor(
     private toastService: ToastService,
     private modal: NzModalService,
     private router: Router,
     private storageService: StorageService,
-    private authService: AuthService
+    private authService: AuthService,
+    private layoutService: LayoutService
   ) {
-    // Theo dõi thay đổi route
     this.router.events
       .pipe(filter((event: any) => event instanceof NavigationEnd))
       .subscribe((event: any) => {
@@ -46,7 +47,7 @@ export class HeaderComponent {
       });
   }
 
-    ngOnInit() {
+  ngOnInit() {
     this.authService.getProfile().subscribe({
       next: (profile) => {
         this.email = profile.email;
@@ -57,21 +58,20 @@ export class HeaderComponent {
         this.username = '';
       },
     });
+
+    // Listen to mobile state changes
+    this.layoutService.isMobile$.subscribe(mobile => {
+      this.isMobile = mobile;
+    });
   }
-  // ------ show toast ---------
 
   showInfo() {
     this.toastService.Info('Tính năng này đang phát triển');
   }
 
-  // ---- modal review all job -----
-  toggleShowReviewAllJob() {
-    this.isShowModalReviewAllJob = !this.isShowModalReviewAllJob;
+  toggleSidebar() {
+    this.layoutService.toggleSidebar();
   }
-  // // ---- modal assign work -----
-  // toggleShowAssignWork() {
-  //   this.isShowModalAssignWork = !this.isShowModalAssignWork;
-  // }
 
   get isAssignWorkPage(): boolean {
     return this.currentRoute.includes('/assignWork');
@@ -90,17 +90,18 @@ export class HeaderComponent {
       ],
     });
   }
+
   logout() {
     this.authService.logout();
   }
+
   openChangePassword(): void {
-  this.modal.create({
-    nzTitle: 'Đổi mật khẩu',
-    nzContent: ModalChangePasswordComponent,
-    nzFooter: null,
-  });
-}
-  
-  //----------
+    this.modal.create({
+      nzTitle: 'Đổi mật khẩu',
+      nzContent: ModalChangePasswordComponent,
+      nzFooter: null,
+    });
+  }
+
   ngOnDestroy() {}
 }

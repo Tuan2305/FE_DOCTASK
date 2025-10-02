@@ -2,18 +2,22 @@
   class="sidebar"
   [class.closed]="!isSidebarOpen"
   [class.collapsed]="!isSidebarOpen"
+  [class.mobile]="isMobile"
 >
   <ul>
-    <!-- home -->
-    <!-- <li [ngClass]="{ active: isHomePage }" [routerLink]="['/home']">
-          <fa-icon
-            class="icon-sidebar"
-            [ngClass]="{ active: isHomePage && !isSidebarOpen }"
-            [icon]="['fas', 'home']"
-          ></fa-icon>
-          <p class="title-list" *ngIf="isSidebarOpen">Home</p>
-          <span class="sidebar-tooltip" *ngIf="!isSidebarOpen">Home</span>
-        </li> -->
+    <!-- Mobile menu items - Tổng hợp và Giao việc chỉ hiện trên mobile -->
+    <ng-container *ngIf="isMobile">
+      <li (click)="navigateAndCloseSidebar('')">
+        <i class="fa-solid fa-chart-bar icon-sidebar"></i>
+        <div class="title-list" *ngIf="isSidebarOpen">Tổng hợp</div>
+      </li>
+      
+      <li [ngClass]="{ active: isAssignWorkPage }" (click)="navigateAndCloseSidebar('/assignWork')">
+        <i class="fa-solid fa-user-plus icon-sidebar"></i>
+        <div class="title-list" *ngIf="isSidebarOpen">Giao việc</div>
+      </li>
+    </ng-container>
+
     <!-- space -->
     <li style="position: relative" (click)="toggleSpaceSubmenuTooltip($event)">
       <div (click)="toggleSpaceSubmenuTooltip($event)">
@@ -31,7 +35,7 @@
         <li
           [ngClass]="{ active: isViecduocgiaoPage }"
           class="SubmenuTooltip"
-          [routerLink]="['/viecduocgiao']"
+          (click)="navigateAndCloseSidebar('/viecduocgiao')"
         >
           <i class="fa-solid fa-list SubmenuTooltip icon-sidebar"></i>
           <div class="SubmenuTooltip title-list">Việc đã giao</div>
@@ -39,10 +43,9 @@
         <li
           [ngClass]="{ active: isViecquanlyPage }"
           class="SubmenuTooltip"
-          [routerLink]="['/viecquanly']"
+          (click)="navigateAndCloseSidebar('/viecquanly')"
         >
           <i class="fa-solid fa-briefcase SubmenuTooltip icon-sidebar"></i>
-
           <div class="SubmenuTooltip title-list">Việc quản lý</div>
         </li>
       </ul>
@@ -73,24 +76,22 @@
       <li
         [ngClass]="{ active: isViecduocgiaoPage }"
         class="submenu"
-        [routerLink]="['/viecduocgiao']"
+        (click)="navigateAndCloseSidebar('/viecduocgiao')"
       >
         <i class="fa-solid fa-list icon-sidebar"></i>
         <div class="sub-title-list" *ngIf="isSidebarOpen">Việc được giao</div>
-        <!-- <span class="sidebar-tooltip" *ngIf="!isSidebarOpen">Không gian</span> -->
       </li>
       <li
         [ngClass]="{ active: isViecquanlyPage }"
         class="submenu"
-        [routerLink]="['/viecquanly']"
+        (click)="navigateAndCloseSidebar('/viecquanly')"
       >
         <i class="fa-solid fa-briefcase icon-sidebar"></i>
-
         <div class="sub-title-list" *ngIf="isSidebarOpen">Việc quản lý</div>
       </li>
     </ul>
     <!-- document -->
-    <li [ngClass]="{ active: isDocumentPage }" [routerLink]="['/document']">
+    <li [ngClass]="{ active: isDocumentPage }" (click)="navigateAndCloseSidebar('/document')">
       <i
         [ngClass]="{ active: isDocumentPage && !isSidebarOpen }"
         class="fa-solid fa-file icon-sidebar"
@@ -99,7 +100,7 @@
       <span class="sidebar-tooltip" *ngIf="!isSidebarOpen">Tài liệu</span>
     </li>
     <!-- automation -->
-    <li [ngClass]="{ active: isAutomationPage }" [routerLink]="['/automation']">
+    <li [ngClass]="{ active: isAutomationPage }" (click)="navigateAndCloseSidebar('/automation')">
       <i
         [ngClass]="{ active: isAutomationPage && !isSidebarOpen }"
         class="fa-solid fa-rocket icon-sidebar"
@@ -108,7 +109,7 @@
       <span class="sidebar-tooltip" *ngIf="!isSidebarOpen">Automation</span>
     </li>
     <!-- AIAgent -->
-    <li [ngClass]="{ active: isAIAgentPage }" [routerLink]="['/AIAgent']">
+    <li [ngClass]="{ active: isAIAgentPage }" (click)="navigateAndCloseSidebar('/AIAgent')">
       <i
         [ngClass]="{ active: isAIAgentPage && !isSidebarOpen }"
         class="fa-solid fa-robot icon-sidebar"
@@ -117,8 +118,8 @@
       <span class="sidebar-tooltip" *ngIf="!isSidebarOpen">AI Agent</span>
     </li>
   </ul>
-  <!-- toggle button close/open sidebar -->
-  <div class="sidebar-bottom-toggle">
+  <!-- toggle button close/open sidebar - chỉ hiện trên desktop -->
+  <div class="sidebar-bottom-toggle" *ngIf="!isMobile">
     <div (click)="toggleSidebar()">
       <i
         *ngIf="!isSidebarOpen"
@@ -133,11 +134,3 @@
     </div>
   </div>
 </aside>
-
-<!-- Toggle button for mobile -->
-<!-- <div class="iconmenu" (click)="toggleSidebar()">
-  <i class="fa-solid fa-bars"></i>
-</div> -->
-
-<!-- Overlay for mobile -->
-<!-- <div class="sidebar-overlay" [class.active]="!isSidebarOpen" (click)="toggleSidebar()"></div> -->
