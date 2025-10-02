@@ -65,6 +65,7 @@ export class DetailViecquanlyItemComponent implements OnInit {
 
   isOkLoading = false;
   selectedDateRange: { start: Date | null; end: Date | null } | null = null;
+  selectedRange: Date[] | null = null;
   frequency?: FrequencyView | null = null;
   objectEdit: ObjectEdit = {
     title: '',
@@ -89,6 +90,12 @@ export class DetailViecquanlyItemComponent implements OnInit {
   ) {}
   ngOnInit(): void {
     this.objectEdit.despcription = this.detailViecquanlyModel.Description;
+    if(this.detailViecquanlyModel.StartDate && this.detailViecquanlyModel.DueDate) {
+      this.selectedDateRange = {
+        start: new Date(this.detailViecquanlyModel.StartDate),
+        end: new Date(this.detailViecquanlyModel.DueDate)
+      };
+    }
     if (this.detailViecquanlyModel.FrequencyType != null) {
       this.frequency = {
         frequency_type:
@@ -136,11 +143,16 @@ export class DetailViecquanlyItemComponent implements OnInit {
     });
   }
   //----
-  onChangeDateModalEdit(result: Date): void {
-    const dates = result.toString().split(',');
-    this.detailViecquanlyModel.StartDate = dates[0];
-    this.detailViecquanlyModel.DueDate = dates[1];
-  }
+  onChangeDateModalEdit(result: Date[] | null): void {
+    if (!result || result.length < 2 ) {
+      return;
+    }
+      const [start, end] = result;
+      this.detailViecquanlyModel.StartDate = start?.toISOString();
+      this.detailViecquanlyModel.DueDate = end.toISOString();
+    }
+  
+
   getFrequencySelected(data: FrequencyView) {
     this.objectEdit.frequencyType = data.frequency_type;
     this.objectEdit.intervalValue = data.interval_value;
