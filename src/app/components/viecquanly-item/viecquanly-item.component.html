@@ -84,7 +84,7 @@
   [(nzVisible)]="isVisibleModalEdit"
   nzTitle="Sửa công việc"
   (nzOnCancel)="handleCancel()"
-  (nzOnOk)="handleEdit()"
+  (nzOnOk)="handleEditDirect()"
   [nzContent]="modalContent"
   [nzFooter]="modalFooter"
 >
@@ -146,26 +146,27 @@
   <ng-template #modalFooter>
     <button nz-button nzType="default" (click)="handleCancel()">Hủy bỏ</button>
     <button
-      nz-button
-      nzType="primary"
-      (click)="handleEdit()"
-      [nzLoading]="isOkLoading"
-    >
-      Xác nhận
-    </button>
+  nz-button
+  nzType="primary"
+    #confirmBtn
+
+  (click)="this.isVisibleModalAddJob=false; handleEditDirect()"
+  [nzLoading]="isOkLoading"
+>
+  Xác nhận
+</button>
+
   </ng-template>
 </nz-modal>
 <nz-modal
-  [(nzVisible)]="isVisibleModalAddJob"
-  nzTitle="Sửa công việc"
+  [nzVisible]="isVisibleModalAddJob"
+  nzTitle="Thêm việc con"
   (nzOnCancel)="closeModalAddChildJob()"
   [nzContent]="modalContent2"
   [nzFooter]="modalFooter2"
 >
   <ng-template #modalContent2>
-    <div class="addJob">
-      <div class="m-r-10">Thêm việc con</div>
-    </div>
+    <div class="addJob"></div>
     <edit-app-misson-item
       [taskIdParent]="viecquanly.taskId"
       (closeEdit)="closeModalAddChildJob()"
@@ -175,10 +176,11 @@
     <button nz-button nzType="default" (click)="closeModalAddChildJob()">
       Hủy bỏ
     </button>
+    <!-- ❌ BỎ button này vì component con đã có nút submit -->
     <!-- <button
       nz-button
       nzType="primary"
-      (click)="handleEdit()"
+      (click)="handleEditDirect()"
       [nzLoading]="isOkLoading"
     >
       Xác nhận

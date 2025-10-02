@@ -11,10 +11,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NzPaginationModule } from 'ng-zorro-antd/pagination';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { ResponsePaganation } from '../../../interface/response-paganation';
 @Component({
   selector: 'app-viecquanly-page',
+  standalone:true,
   imports: [
     ...SHARED_LIBS,
     LoadingComponent,
@@ -41,6 +42,7 @@ export class ViecquanlyPageComponent implements OnInit {
     private toastService: ToastService,
     private viecQuanlyService: ViecQuanlyService
   ) {}
+
   ngOnInit(): void {
     this.data$ = this.viecQuanlyService.onRefresh(this.currentPage.toString());
     this.getData();

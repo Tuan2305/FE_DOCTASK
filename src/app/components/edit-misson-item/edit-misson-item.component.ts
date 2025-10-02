@@ -157,8 +157,10 @@ export class EditMissonItemComponent implements OnInit {
       daysOfMonth: this.task.daysOfMonth,
       parentTaskId: this.taskIdParent,
     };
+    this.closeAddJob();
     this.assignWorkService.CreateChildTask(objectTaskChild).subscribe({
       next: (respone) => {
+        this.closeAddJob();
         const newTask: TaskViewModel = {
           ...this.task,
           id: respone.taskId,

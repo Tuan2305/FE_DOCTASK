@@ -1,6 +1,6 @@
 import { ToastService } from './../../service/toast.service';
 import { ViecQuanlyService } from './../../service/viecquanly.service';
-import { Component, Input, ViewChild } from '@angular/core';
+import { Component, Input, ViewChild,OnInit,OnDestroy } from '@angular/core';
 import { ViecquanlyModel } from '../../models/viecquanly.model';
 import { Router } from '@angular/router';
 import { ModalDetailProgressOriginalJobComponent } from '../modal-detail-progress-original-job/modal-detail-progress-original-job.component';
@@ -18,9 +18,12 @@ import { convertDateArrayToISOStrings } from '../../helper/converetToISODate';
 import { EditMissonItemComponent } from '../edit-misson-item/edit-misson-item.component';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
+ import { debounceTime, exhaustMap, filter, finalize, Subject, Subscription, switchMap, take, throttle, throttleTime } from 'rxjs';
+import { EMPTY } from 'rxjs';
 
 @Component({
   selector: 'app-viecquanly-item',
+  standalone:true,
   imports: [
     ModalDetailProgressOriginalJobComponent,
     CommonModule,
@@ -40,6 +43,8 @@ import { NzSwitchModule } from 'ng-zorro-antd/switch';
   styleUrl: './viecquanly-item.component.css',
 })
 export class ViecquanlyItemComponent {
+  @ViewChild('confirmBtn', { static: false }) confirmBtn: any;
+
   @ViewChild(ModalDetailDespcriptionJobComponent)
   ModalDetailDespcriptionJobRef!: ModalDetailDespcriptionJobComponent;
   @Input() viecquanly!: ViecquanlyModel;
@@ -62,8 +67,61 @@ export class ViecquanlyItemComponent {
   constructor(
     private router: Router,
     private viecQuanlyService: ViecQuanlyService,
-    private toastService: ToastService
+    private toastService: ToastService,
   ) {}
+  private editClick$ = new Subject<void>();
+  private lastEditTime: number = 0; // giữ thời gian request cuối
+ 
+private subscription?: Subscription;
+
+
+handleEditDirect() {
+  console.log('Click');
+  if (this.isSubmitting) {
+    console.log('Đang xử lý, bỏ qua');
+    return;
+  }
+
+  // Đóng modal NGAY LẬP TỨC khi bấm xác nhận
+  this.isVisibleModalAddJob = false;
+  this.isVisibleModalEdit = false;
+
+  this.isSubmitting = true;
+  this.isOkLoading = true;
+
+  const object = {
+    title: this.jobname,
+    description: this.despcriptionJob,
+    startDate: this.objectEdit.startDate
+      ? convertDateArrayToISOStrings(this.objectEdit.startDate)
+      : null,
+    dueDate: this.objectEdit.endDate
+      ? convertDateArrayToISOStrings(this.objectEdit.endDate)
+      : null,
+  };
+
+  this.viecQuanlyService
+    .editViecQuanly(this.viecquanly.taskId.toString(), object)
+    .pipe(
+      finalize(() => {
+        console.log('API hoàn tất');
+        this.isOkLoading = false;
+        this.isSubmitting = false;
+      })
+    )
+    .subscribe({
+      next: () => {
+        console.log('API thành công');
+        this.toastService.Success('Cập nhật thành công !');
+        this.viecQuanlyService.triggerRefresh();
+      },
+      error: (err) => {
+        console.log('API thất bại:', err);
+        this.toastService.Warning('Cập nhật thất bại !');
+      },
+    });
+}
+
   closeModalAddChildJob() {
     this.isVisibleModalAddJob = false;
   }
@@ -94,51 +152,53 @@ export class ViecquanlyItemComponent {
     this.despcriptionJob = '';
   }
 
-  handleEdit(): void {
-    if (this.jobname == '' && this.isEditTitleTask) {
-      this.toastService.Warning('Vui lòng nhập tên công việc !');
-      return;
-    }
-    if (this.despcriptionJob == '' && this.isEditDespTask) {
-      this.toastService.Warning('Vui lòng nhập nội dung công việc !');
-      return;
-    }
-    if (
-      this.objectEdit.startDate == null &&
-      this.objectEdit.startDate == null &&
-      this.isEditDateTimeTask
-    ) {
-      this.toastService.Warning('Vui lòng nhập chọn thời hạn công việc !');
-      return;
-    }
-    const object = {
-      title: this.jobname,
-      description: this.despcriptionJob,
-      startDate:
-        this.objectEdit.startDate == null
-          ? null
-          : convertDateArrayToISOStrings(this.objectEdit.startDate),
-      dueDate:
-        this.objectEdit.endDate == null
-          ? null
-          : convertDateArrayToISOStrings(this.objectEdit.endDate),
-    };
-    this.isOkLoading = true;
-    this.viecQuanlyService
-      .editViecQuanly(this.viecquanly.taskId.toString(), object)
-      .subscribe({
-        next: () => {
-          this.toastService.Success('Cập nhật thành công !');
-          this.viecQuanlyService.triggerRefresh();
-        },
-        error: () => {
-          this.toastService.Warning('Cập nhật thất bại !');
-        },
-      });
-    this.isOkLoading = false;
+ isSubmitting = false;
 
-    this.isVisibleModalEdit = false;
-  }
+
+// handleEditDirect(event: MouseEvent): void {
+//   // Chặn ngay từ lần đầu
+//   const btn = this.confirmBtn?.nativeElement as HTMLButtonElement;
+//   if (btn.disabled) {
+//     return; // nếu đã disable thì bỏ qua
+//   }
+//   btn.disabled = true; // disable trực tiếp DOM ngay lập tức
+
+//   this.isOkLoading = true;
+
+//   const object = {
+//     title: this.jobname,
+//     description: this.despcriptionJob,
+//     startDate: this.objectEdit.startDate
+//       ? convertDateArrayToISOStrings(this.objectEdit.startDate)
+//       : null,
+//     dueDate: this.objectEdit.endDate
+//       ? convertDateArrayToISOStrings(this.objectEdit.endDate)
+//       : null,
+//   };
+
+//   this.viecQuanlyService
+//     .editViecQuanly(this.viecquanly.taskId.toString(), object)
+//     .pipe(
+//       finalize(() => {
+//         this.isOkLoading = false;
+//         btn.disabled = false; // mở lại sau khi API xong
+//       })
+//     )
+//     .subscribe({
+//       next: () => {
+//         this.toastService.Success('Cập nhật thành công !');
+//         this.viecQuanlyService.triggerRefresh();
+//         this.isVisibleModalEdit = false;
+//       },
+//       error: () => {
+//         this.toastService.Warning('Cập nhật thất bại !');
+//       },
+//     });
+// }
+
+
+
+
 
   handleCancel(): void {
     this.isVisibleModalEdit = false;
