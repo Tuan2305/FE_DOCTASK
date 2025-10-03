@@ -243,7 +243,11 @@ export class ReviewOriginalJobComponent implements OnInit {
             user.scheduledProgresses.flatMap((period: any) => {
               return period.progresses.map((prog: any) => ({
                 periodIndex: period.periodIndex,
-                scheduledDate: period.scheduledDate,
+                periodStartDate: period.periodStartDate,
+                periodEndDate: period.periodEndDate,
+                // periodName: period.periodName,
+                userName: user.userName,
+                scheduledDate: `${this.convertDate(period.periodStartDate)} - ${this.convertDate(period.periodEndDate)}`,
                 progressId: prog.progressId,
                 status: this.getStatusLabel(prog.status),
 
@@ -277,7 +281,13 @@ export class ReviewOriginalJobComponent implements OnInit {
               user.scheduledProgresses.flatMap((period: any) => {
                 return period.progresses.map((prog: any) => ({
                   periodIndex: period.periodIndex,
-                  scheduledDate: period.scheduledDate,
+                  
+                  periodStartDate: period.periodStartDate,
+                  periodEndDate: period.periodEndDate,
+                  // periodName: period.periodName,
+        
+
+                  scheduledDate: `${this.convertDate(period.periodStartDate)} - ${this.convertDate(period.periodEndDate)}`,
                   progressId: prog.progressId,
                   status: this.getStatusLabel(prog.status),
 
@@ -301,12 +311,28 @@ export class ReviewOriginalJobComponent implements OnInit {
         },
       });
   }
+
+  convertDate(dateString: string): string {
+  if (!dateString || dateString === '0001-01-01T00:00:00') return 'Chưa xác định';
+  
+  const date = new Date(dateString);
+  return date.toLocaleDateString('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+}
+
   getStatusLabel(statusKey: string): string {
     return (
       ConvertStatusTask[statusKey as keyof typeof ConvertStatusTask] ||
       'Chưa báo cáo'
     );
   }
+
+  
+
+
 }
 interface GroupedUnitProgress {
   unitName: string;
@@ -321,6 +347,8 @@ interface GroupedUserProgress {
 interface FlatProgressRow {
   userName: string;
   periodIndex: number;
+  preiodStartDate: string;
+  periodEndDate: string;
   scheduledDate: string;
   status: string;
   progressId: number;

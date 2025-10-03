@@ -196,43 +196,57 @@ export class ReviewChildJobComponent implements OnInit {
     this.locationRoute.back();
   }
   loadData(): void {
-    this.isloadingTable = true;
-    this.data$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (data) => {
-        this.pageSize = data.pageSize;
-        this.totalItem = data.totalItems;
-        this.listOfData = data.items.map((user: any) => {
-          const flattenedProgresses: FlatProgressRow[] =
-            user.scheduledProgresses.flatMap((period: any) => {
-              return period.progresses.map((prog: any) => ({
-                periodIndex: period.periodIndex,
-                scheduledDate: convertToVietnameseDate(period.scheduledDate),
-                progressId: prog.progressId,
-                status: prog.status,
-                result: prog.result,
-                suggest: prog.proposal,
-                feedback: prog.feedback,
-                file: prog.fileName,
-                filePath: prog.filePath,
-              }));
-            });
+  this.isloadingTable = true;
+  this.data$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    next: (data) => {
+      this.pageSize = data.pageSize;
+      this.totalItem = data.totalItems;
+      this.listOfData = data.items.map((user: any) => {
+        const flattenedProgresses: FlatProgressRow[] =
+          user.scheduledProgresses.flatMap((period: any) => {
+            return period.progresses.map((prog: any) => ({
+              periodIndex: period.periodIndex,
+              periodStartDate: period.periodStartDate, // Thêm trường này
+              periodEndDate: period.periodEndDate,     // Thêm trường này
+              scheduledDate: `${this.convertDate(period.periodStartDate)} - ${this.convertDate(period.periodEndDate)}`, // Hiển thị khoảng thời gian
+              progressId: prog.progressId,
+              status: prog.status,
+              result: prog.result,
+              suggest: prog.proposal,
+              feedback: prog.feedback,
+              file: prog.fileName,
+              filePath: prog.filePath,
+            }));
+          });
 
-          return {
-            userId: user.userId,
-            userName: user.userName,
-            progresses: flattenedProgresses,
-            status: user.status,
-          };
-        });
-        this.listOfCurrentPageData = [...this.listOfData];
-        this.isloadingTable = false;
-      },
-      error: (err) => {
-        this.isloadingTable = false;
-        this.toastService.Warning(err.message ?? 'Lấy dữ liệu thất bại');
-      },
-    });
-  }
+        return {
+          userId: user.userId,
+          userName: user.userName,
+          progresses: flattenedProgresses,
+          status: user.status,
+        };
+      });
+      this.listOfCurrentPageData = [...this.listOfData];
+      this.isloadingTable = false;
+    },
+    error: (err) => {
+      this.isloadingTable = false;
+      this.toastService.Warning(err.message ?? 'Lấy dữ liệu thất bại');
+    },
+  });
+}
+
+convertDate(dateString: string): string {
+  if (!dateString || dateString === '0001-01-01T00:00:00') return 'Chưa xác định';
+  
+  const date = new Date(dateString);
+  return date.toLocaleDateString('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+}
+
   loadUsersSelect(taskId: string): void {
     this.reviewChildJobService.getUsersReview(taskId).subscribe({
       next: (data) => {
@@ -319,6 +333,8 @@ interface GroupedUserProgress {
 interface FlatProgressRow {
   userName: string;
   periodIndex: number;
+  periodStartDate: string;    // Thêm trường này
+  periodEndDate: string; 
   scheduledDate: string;
   status: string;
   progressId: number;

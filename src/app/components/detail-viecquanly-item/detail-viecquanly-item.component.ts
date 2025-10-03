@@ -119,9 +119,16 @@ export class DetailViecquanlyItemComponent implements OnInit {
     });
   }
   //----- convert ----
-  convertDate(time: string): string {
-    return convertToVietnameseDate(time);
-  }
+  convertDate(dateString: string): string {
+  if (!dateString || dateString === '0001-01-01T00:00:00') return 'Chưa xác định';
+  
+  const date = new Date(dateString);
+  return date.toLocaleDateString('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+}
   //---- detail progress child job -----
   toggleShowDetailProgressModal() {
     this.isShowDetailProgressModal = !this.isShowDetailProgressModal;

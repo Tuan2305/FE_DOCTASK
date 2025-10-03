@@ -76,7 +76,7 @@
               (nzCheckedChange)="onAllChecked($event)"
             ></th>
             <th nzLeft nzWidth="200px">Đơn vị</th>
-            <th nzWidth="150px">Kỳ</th>
+            <!-- <th nzWidth="150px">Kỳ</th> -->
             <th nzWidth="150px">Trạng thái</th>
 
             <th nzWidth="300px">Kết quả</th>
@@ -106,7 +106,7 @@
                 <td nzLeft></td>
                 <td nzLeft></td>
                 <!-- Cột Kỳ để trống cho dòng chi tiết -->
-                <td>Kỳ {{ item.periodIndex }}</td>
+                <td>Kỳ {{ item.periodIndex }} ({{ item.scheduledDate }})</td>
                 <td>{{ item.status }}</td>
 
                 <td>{{ item.result }}</td>
