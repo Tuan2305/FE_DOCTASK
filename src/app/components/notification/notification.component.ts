@@ -98,37 +98,49 @@ export class NotificationComponent implements OnInit,OnDestroy {
     this.sub.unsubscribe(); // tránh memory leak
   }
   ChangeIsRead(item: ReminderModel) {
-  if (!item.isNotified) {
-    item.isNotified = true; // update UI trước
-    this.NotiService.maskReminderRead(item.reminderId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => this.refreshUnreadCount(),
-        error: () => {
-          item.isNotified = false; // rollback
-          this.toastService.Error('Đánh dấu đọc thất bại!');
-        }
-      });
+    if (!item.isNotified) {
+      item.isNotified = true; // update UI trước
+      this.NotiService.maskReminderRead(item.reminderId)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => this.refreshUnreadCount(),
+          error: () => {
+            item.isNotified = false; // rollback
+            this.toastService.Error('Đánh dấu đọc thất bại!');
+          }
+        });
+    }
+
+    // Điều hướng dựa vào type và taskId
+    if (item.type == typeNotification.taskReminder && item.taskid) {
+      // Nếu có taskId thì điều hướng đến task cụ thể
+        this.route.navigate(['/viecduocgiao'], {
+          queryParams: { highlightId: item.taskid, _t: Date.now() },
+        });
+      } else if (
+        item.type == typeNotification.createTask ||
+        item.type == typeNotification.putDeadlineTask ||
+        item.type == typeNotification.taskReminder
+      ) {
+        this.route.navigate(['/viecduocgiao'], {
+          queryParams: { highlightId: item.taskid, _t: Date.now() },
+        });
+      }
+    }
+    getNotificationDisplayText(item: ReminderModel): string {
+    if (item.taskid) {
+      return `${item.message} (Task #${item.taskid})`;
+    }
+    return item.message;
   }
 
-  if (
-    item.type == typeNotification.createTask ||
-    item.type == typeNotification.putDeadlineTask ||
-    item.type == typeNotification.taskReminder
-  ) {
-    this.route.navigate(['/viecduocgiao'], {
-      queryParams: { highlightId: item.taskid, _t: Date.now() },
-    });
+    //kiểm tra thông báo realtime đã đọc chưa
+    markNotificationRead(item: NotificationItem) {
+    if (!item.isRead) {
+      item.isRead = true;
+      console.log('[Reminder] Marked as read:', item.title);
+    }
   }
-}
-
-  //kiểm tra thông báo realtime đã đọc chưa
-  markNotificationRead(item: NotificationItem) {
-  if (!item.isRead) {
-    item.isRead = true;
-    console.log('[Reminder] Marked as read:', item.title);
-  }
-}
   //click chuông đồng nghĩa thông báo được đọc
   markAllNotificationRead() {
   // Cập nhật UI local ngay

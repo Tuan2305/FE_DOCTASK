@@ -169,8 +169,8 @@ export class ReviewChildJobComponent implements OnInit {
   }
 
   // ---- send remind modal ----
-  showModalSendRemind(id: string) {
-    this.ModalSendRemindRef.showModal(id);
+  showModalSendRemind(userId: string) {
+    this.ModalSendRemindRef.showModal(userId, this.taskId?.valueOf());
   }
 
   // -----  create report ----
@@ -293,29 +293,52 @@ convertDate(dateString: string): string {
   }
   convertStatus(status: string): string {
     switch (status) {
+      case 'in_progress':
+        return 'Đang thực hiện';
+      case 'completed':
+        return 'Hoàn thành';
+      case 'pending':
+        return 'Chờ phê duyệt';
       case 'submitted':
         return 'Chờ phê duyệt';
       case 'approved':
         return 'Đã phê duyệt';
       case 'rejected':
         return 'Đã từ chối';
+      case 'Chưa có báo cáo cho mốc này':
+        return 'Chưa có báo cáo';
       default:
         return status;
     }
   }
 
+  // Kiểm tra có báo cáo đang chờ duyệt
+  isReportPending(status: string): boolean {
+    return status === 'in_progress' || status === 'submitted' || status === 'pending';
+  }
+
+  // Kiểm tra chưa có báo cáo
+  isNoReport(status: string): boolean {
+    return status === 'Chưa có báo cáo cho mốc này';
+  }
+
+  // Kiểm tra đã hoàn thành hoặc đã duyệt
+  isCompleted(status: string): boolean {
+    return status === 'completed' || status === 'approved';
+  }
+
 
   accept(progressId: number) {
-    this.reviewChildJobService.acceptProgress(progressId.toString()).subscribe({
-      next: () => {
-        this.toastService.Success('Chấp nhận báo cáo và cập nhật tiến độ thành công.');
-        this.refreshData(); // reload list so status becomes 'approved'
-      },
-      error: (err) => {
-        this.toastService.Warning(err?.message || 'Lỗi phê duyệt báo cáo !');
-      },
-    });
-  }
+  this.reviewChildJobService.acceptProgress(progressId.toString()).subscribe({
+    next: () => {
+      this.toastService.Success('Chấp nhận báo cáo thành công!');
+      this.refreshData(); // Refresh để cập nhật trạng thái mới
+    },
+    error: (err) => {
+      this.toastService.Warning(err?.message || 'Lỗi phê duyệt báo cáo!');
+    },
+  });
+}
 
   showInfo() {
     this.toastService.ForFeature();
