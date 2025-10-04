@@ -1,6 +1,6 @@
 import { AuthService } from './../../service/auth.service';
 import { ToastService } from './../../service/toast.service';
-import { StorageService } from './../../service/storage.service';
+// import { StorageService } from './../../service/storage.service';
 import { Component, ViewChild } from '@angular/core';
 import { SHARED_LIBS } from '../main-sharedLib';
 
@@ -36,7 +36,7 @@ export class HeaderComponent {
     private toastService: ToastService,
     private modal: NzModalService,
     private router: Router,
-    private storageService: StorageService,
+    // private storageService: StorageService,
     private authService: AuthService,
     private layoutService: LayoutService
   ) {

@@ -12,6 +12,7 @@ import { Router, RouterModule } from '@angular/router';
 import { ToastComponent } from '../../../components/toast/toast.component';
 import { ScreenLoadingComponent } from '../../../components/loading/screenLoading/screenLoading.component';
 import { ToastService } from '../../../service/toast.service';
+import { SignalrService } from '../../../service/signalr/signalr.service';
 
 @Component({
   selector: 'app-auth-page',
@@ -28,6 +29,12 @@ import { ToastService } from '../../../service/toast.service';
   styleUrls: ['./loginPage.component.css'],
 })
 export class LoginPageComponent implements OnInit {
+  public get signalRService(): SignalrService {
+    return this._signalRService;
+  }
+  public set signalRService(value: SignalrService) {
+    this._signalRService = value;
+  }
   isLoading: boolean = false;
 
   authForm: FormGroup = new FormGroup({
@@ -40,7 +47,8 @@ export class LoginPageComponent implements OnInit {
   constructor(
     private router: Router,
     private toastService: ToastService,
-    private authService: AuthService
+    private authService: AuthService,
+    private _signalRService: SignalrService
   ) {}
 
   ngOnInit(): void {}
@@ -51,6 +59,8 @@ export class LoginPageComponent implements OnInit {
       const { userName, password } = this.authForm.value;
       this.authService.login(userName, password).subscribe({
         next: (res) => {
+                  this._signalRService.startConnection();
+
           this.isLoading = false;
           this.router.navigate(['/'], { replaceUrl: true });
         },

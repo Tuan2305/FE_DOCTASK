@@ -5,7 +5,7 @@ import { environment } from '../environment/environment';
 import { map, Observable } from 'rxjs';
 import { ResponseApi } from '../interface/response';
 import { AuthResponseModel } from '../models/authRespone.model';
-import { StorageService } from './storage.service';
+// import { StorageService } from './storage.service';
 import { Router } from '@angular/router';
 
 @Injectable({ providedIn: 'root' })
@@ -14,11 +14,11 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private router: Router,
-    private storageService: StorageService
+    // private storageService: StorageService
   ) {
     this.apiUrl = `${environment.SERVICE_API}`;
   }
-  login(userName: string, password: string): Observable<boolean> {
+   login(userName: string, password: string): Observable<boolean> {
     const url = `${this.apiUrl}auth/login`;
     return this.http
       .post<ResponseApi>(url, { username: userName, password: password })
@@ -26,16 +26,12 @@ export class AuthService {
         map((res) => {
           if (!res.success) {
             throw new Error(res.message);
-            // return false;
           } else {
             const item = res.data as AuthResponseModel;
 
-            this.storageService.setEncrypted('accessToken', item.accessToken);
-            this.storageService.setEncrypted('refreshToken', item.refreshToken);
-            // this.storageService.setEncrypted('userId', item.userId.toString());
-            // this.storageService.setEncrypted('userName', item.username);
-            // this.storageService.setEncrypted('email', item.email);
-            // this.storageService.setEncrypted('imageUrl', '');
+            // Lưu thẳng token vào localStorage (không mã hóa)
+            localStorage.setItem('accessToken', item.accessToken);
+            localStorage.setItem('refreshToken', item.refreshToken);
             localStorage.setItem('auth/login', 'true');
 
             return true;
@@ -43,41 +39,47 @@ export class AuthService {
         })
       );
   }
+
   getAccessToken(): string | null {
-    return this.storageService.getDecrypted('accessToken');
+    return localStorage.getItem('accessToken');
   }
 
   getRefreshToken(): string | null {
-    return this.storageService.getDecrypted('refreshToken');
+    return localStorage.getItem('refreshToken');
   }
 
   setTokens(accessToken: string, refreshToken: string): void {
-    this.storageService.setEncrypted('accessToken', accessToken);
-    this.storageService.setEncrypted('refreshToken', refreshToken);
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
   }
 
   clearTokens(): void {
-    localStorage.clear();
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('auth/login');
   }
 
   logout(): void {
     this.clearTokens();
-    localStorage.setItem('auth/login', 'false');
     this.router.navigate(['/login']);
   }
 
   getProfile(): Observable<{ email: string; username: string }> {
-  const url = `${this.apiUrl}user/profile`;
-  return this.http.get<ResponseApi<any>>(url).pipe(
-    map((res) => {
-      if (!res.success) throw new Error(res.message);
-      return {
-        email: res.data.email,
-        username: res.data.username,
-      };
-    })
-  );
-}
+    const url = `${this.apiUrl}user/profile`;
+    return this.http.get<ResponseApi<any>>(url).pipe(
+      map((res) => {
+        if (!res.success) throw new Error(res.message);
 
+        const userId = res.data.userId;
+        localStorage.setItem('userId', userId.toString());
+
+        return {
+          email: res.data.email,
+          username: res.data.username,
+        };
+      })
+    );
+  }
 }
 

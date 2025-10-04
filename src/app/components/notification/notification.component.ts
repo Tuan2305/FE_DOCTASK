@@ -76,7 +76,7 @@ export class NotificationComponent implements OnInit,OnDestroy {
         }
       })
     );
-    this.dateTimeNow = convertToVietnameseDate(new Date().toISOString());
+    // this.dateTimeNow = convertToVietnameseDate(new Date().toISOString());
     //load reminder từ db
    this.data$ = this.NotiService.onRefresh(this.page, this.size).pipe(
   tap(({ items, metaData }) => {

@@ -7,13 +7,13 @@ import {
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ToastService } from '../service/toast.service';
-import { StorageService } from '../service/storage.service';
+// import { StorageService } from '../service/storage.service';
 
 @Injectable()
 export class ApiInterceptor implements HttpInterceptor {
   constructor(
     private toastService: ToastService,
-    private storageService: StorageService
+    // private storageService: StorageService
   ) {}
 
   intercept(
@@ -24,7 +24,7 @@ export class ApiInterceptor implements HttpInterceptor {
     if (excludedUrl.some((url) => req.url.includes(url))) {
       return next.handle(req);
     }
-    const token = this.storageService.getDecrypted('accessToken');
+    const token = localStorage.getItem('accessToken');
     if (token) {
       const cloned = req.clone({
         setHeaders: {
